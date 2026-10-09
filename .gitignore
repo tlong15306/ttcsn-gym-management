@@ -1,0 +1,27 @@
+# Local tooling and dependencies
+.codex_artifact/
+node_modules/
+client/node_modules/
+server/bin/
+bin/
+
+# Secrets and local environment configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local databases, uploads, test output, and coverage
+postgres-data/
+data/
+uploads/
+coverage/
+*.coverprofile
+
+# Editor and operating-system files
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+Desktop.ini
