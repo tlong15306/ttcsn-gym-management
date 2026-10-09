@@ -3,13 +3,20 @@ package main
 import (
 	"log"
 
+	"github.com/tlong15306/ttcsn-gym-management/server/internal/config"
 	"github.com/tlong15306/ttcsn-gym-management/server/internal/delivery/http/router"
 )
 
 func main() {
-	r := router.New()
+	cfg := config.Load()
+	r, err := router.New()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	if err := r.Run(":8080"); err != nil {
+	log.Printf("starting API in %s mode", cfg.AppEnv)
+
+	if err := r.Run(cfg.HTTPAddr); err != nil {
 		log.Fatal(err)
 	}
 }

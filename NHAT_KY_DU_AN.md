@@ -190,7 +190,32 @@ Kết quả xác nhận server: PostgreSQL `17.11`.
 **Điều tôi đã hiểu:** `main` chỉ khởi động chương trình; router đăng ký URL và middleware; handler đọc/trả HTTP response. Liveness kiểm tra process API còn phản hồi, không kiểm tra database. Endpoint readiness kiểm tra PostgreSQL sẽ được thêm sau khi có cấu hình/kết nối DB.
 
 **Trạng thái Buổi 01:** Hoàn thành.
-**Bước tiếp theo:** Thêm cấu hình môi trường không chứa secret và khởi tạo kết nối PostgreSQL cho endpoint readiness.
+**Bước tiếp theo:** Thêm cấu hình môi trường không chứa secret.
+
+### Buổi 02 — Cấu hình môi trường và proxy an toàn
+
+**Ngày:** 10/10/2026
+**Mục tiêu:** Tách cấu hình khỏi mã nguồn, giữ secret ngoài Git và cấu hình Gin không tin proxy tùy ý.
+
+**Việc đã làm:**
+
+- Tạo `server/.env.example` với `APP_ENV`, `HTTP_ADDR` và mẫu `DATABASE_URL`; mật khẩu thật không nằm trong file được commit.
+- Tạo `internal/config/config.go`. Hàm `Load()` lấy giá trị từ environment, mặc định `APP_ENV=development` và `HTTP_ADDR=:8080`; `DATABASE_URL` không có giá trị mặc định.
+- Tạo `config_test.go` dùng `t.Setenv` để kiểm tra config đọc đúng biến môi trường.
+- Sửa `main` để lấy cổng và môi trường từ `config.Load()`.
+- Sửa router: `SetTrustedProxies(nil)` được gọi và lỗi được trả về cho `main` xử lý.
+
+**Kết quả kiểm tra:**
+
+- `go test ./...` pass.
+- API khởi động tại cổng tạm `18080`; `GET /health/live` trả `{"status":"ok"}`.
+- Log runtime không còn cảnh báo `You trusted all proxies`.
+- Cảnh báo Gin debug mode vẫn xuất hiện và phù hợp `APP_ENV=development`; chưa chuyển sang release mode.
+
+**Điều tôi đã hiểu:** `.env.example` là hợp đồng cấu hình được commit, còn `.env` chỉ tồn tại trên máy/deploy và chứa secret. Cấu hình proxy quyết định header nào được tin để suy ra IP client; chưa có reverse proxy thì không tin proxy nào. Test config không cần PostgreSQL vì kiểm tra việc đọc environment, không kiểm tra kết nối.
+
+**Trạng thái Buổi 02:** Hoàn thành.
+**Bước tiếp theo:** Tạo pool PostgreSQL từ `DATABASE_URL`, đóng pool khi tắt app và thêm `/health/ready` để kiểm tra database.
 
 ## 6. Mẫu ghi cho mỗi buổi học/code
 
@@ -250,8 +275,9 @@ lệnh ở đây
 | Môi trường phát triển | Hoàn thành | Node 24.19.0, npm 11.17.0, Go 1.26.5, Git 2.55.0, Docker 29.8.1, PostgreSQL 17.11 | Vai trò của Go, Node, PostgreSQL, Docker và Git |
 | Go cơ bản + module | Hoàn thành cho GYM | `server/go.mod`; module `github.com/tlong15306/ttcsn-gym-management/server` | Module GYM, entry point và import giữa các package |
 | Gin `/health/live` | Hoàn thành | Postman và Gin log HTTP 200; `go test ./...` pass | Cách nối router/handler và ý nghĩa liveness |
-| Cấu trúc backend | Đang bắt đầu | `main` → `router` → `HealthHandler` | Handler, Usecase, Repository khác nhau thế nào |
+| Cấu trúc backend | Đang bắt đầu | `main` → `config`/`router` → `HealthHandler` | Handler, Usecase, Repository khác nhau thế nào |
 | PostgreSQL/schema | Chưa bắt đầu | DDL chạy trên DB test | bảng, PK, FK, CHECK, UNIQUE, index |
+| Cấu hình môi trường | Hoàn thành bước đọc config | `.env.example`, config test và `SetTrustedProxies(nil)` | secret khác template config; proxy tin cậy ảnh hưởng IP client |
 | Auth/RBAC | Chưa bắt đầu | test login/quyền | hash, token, authentication, authorization |
 | Master data | Chưa bắt đầu | API Member/PT/Room/Session | validate và vòng đời dữ liệu |
 | Booking core | Chưa bắt đầu | test race/conflict | transaction, lock, idempotency |
