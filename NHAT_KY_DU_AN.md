@@ -217,6 +217,33 @@ Kết quả xác nhận server: PostgreSQL `17.11`.
 **Trạng thái Buổi 02:** Hoàn thành.
 **Bước tiếp theo:** Tạo pool PostgreSQL từ `DATABASE_URL`, đóng pool khi tắt app và thêm `/health/ready` để kiểm tra database.
 
+### Buổi 03 — PostgreSQL pool và readiness endpoint
+
+**Ngày:** 10/10/2026
+**Mục tiêu:** Đọc cấu hình local an toàn, mở pool PostgreSQL và tách health liveness khỏi readiness.
+
+**Việc đã làm:**
+
+- Thêm `godotenv` để API đọc `server/.env` khi chạy local; `.env` vẫn bị Git bỏ qua, còn `.env.example` chỉ giữ placeholder.
+- Thêm `pgxpool` và `internal/infrastructure/postgres/pool.go`. Hàm `Open` kiểm tra `DATABASE_URL`, parse URL, tạo pool, ping database và đóng pool nếu ping lỗi.
+- `main` tạo context khởi động có timeout 5 giây, mở pool, `defer pool.Close()` và chỉ khởi động API khi PostgreSQL kết nối được.
+- Sửa `DATABASE_URL` local bằng URL encoding cho ký tự đặc biệt trong mật khẩu. Ký tự thuộc mật khẩu được encode; ký tự `@` phân cách userinfo và host vẫn giữ nguyên.
+- Tạo `ReadinessChecker` interface trong health handler; handler chỉ yêu cầu khả năng `Ping(context.Context)` và không phụ thuộc trực tiếp package pgx.
+- Truyền pool vào router, thêm `GET /health/ready`. Endpoint trả `200 {"status":"ready"}` khi `Ping` thành công, hoặc `503 {"status":"not_ready"}` sau timeout 2 giây.
+
+**Kết quả kiểm tra:**
+
+- `go test ./...` pass sau khi thêm pool và config loader.
+- API log xác nhận `PostgreSQL connected; starting API in development mode`.
+- `GET /health/live` và `GET /health/ready` đã chạy thành công với PostgreSQL local.
+
+**Điều tôi đã hiểu:** connection pool được chia sẻ giữa các request; không tạo kết nối mới cho từng endpoint. Liveness trả lời API process có phản hồi; readiness quyết định dependency PostgreSQL có sẵn sàng xử lý request không. Interface nhỏ giúp handler test được với fake checker ở bước kiểm thử sau.
+
+**Giới hạn hiện tại:** Nếu PostgreSQL không kết nối được khi khởi động, app hiện dừng ngay. Cơ chế reconnect/background retry sẽ được cân nhắc khi có yêu cầu triển khai thực tế.
+
+**Trạng thái Buổi 03:** Hoàn thành.
+**Bước tiếp theo:** Viết unit test cho health handler với fake readiness checker, sau đó bắt đầu migration/schema cho PostgreSQL.
+
 ## 6. Mẫu ghi cho mỗi buổi học/code
 
 Sao chép mẫu này xuống cuối file sau mỗi buổi:
@@ -276,8 +303,9 @@ lệnh ở đây
 | Go cơ bản + module | Hoàn thành cho GYM | `server/go.mod`; module `github.com/tlong15306/ttcsn-gym-management/server` | Module GYM, entry point và import giữa các package |
 | Gin `/health/live` | Hoàn thành | Postman và Gin log HTTP 200; `go test ./...` pass | Cách nối router/handler và ý nghĩa liveness |
 | Cấu trúc backend | Đang bắt đầu | `main` → `config`/`router` → `HealthHandler` | Handler, Usecase, Repository khác nhau thế nào |
-| PostgreSQL/schema | Chưa bắt đầu | DDL chạy trên DB test | bảng, PK, FK, CHECK, UNIQUE, index |
+| PostgreSQL/schema | Đã kết nối pool; chưa chạy schema/migration | API ping PostgreSQL qua `pgxpool` | pool, URL config, bảng, PK, FK, CHECK, UNIQUE, index |
 | Cấu hình môi trường | Hoàn thành bước đọc config | `.env.example`, config test và `SetTrustedProxies(nil)` | secret khác template config; proxy tin cậy ảnh hưởng IP client |
+| Health readiness | Hoàn thành | `/health/ready` ping PostgreSQL | liveness khác readiness; dependency được truyền qua interface |
 | Auth/RBAC | Chưa bắt đầu | test login/quyền | hash, token, authentication, authorization |
 | Master data | Chưa bắt đầu | API Member/PT/Room/Session | validate và vòng đời dữ liệu |
 | Booking core | Chưa bắt đầu | test race/conflict | transaction, lock, idempotency |

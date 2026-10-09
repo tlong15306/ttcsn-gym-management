@@ -5,7 +5,7 @@ import (
 	"github.com/tlong15306/ttcsn-gym-management/server/internal/delivery/http/handler"
 )
 
-func New() (*gin.Engine, error) {
+func New(readiness handler.ReadinessChecker) (*gin.Engine, error) {
 	r := gin.New()
 
 	if err := r.SetTrustedProxies(nil); err != nil {
@@ -14,8 +14,9 @@ func New() (*gin.Engine, error) {
 
 	r.Use(gin.Logger(), gin.Recovery())
 
-	healthHandler := handler.NewHealthHandler()
+	healthHandler := handler.NewHealthHandler(readiness)
 	r.GET("/health/live", healthHandler.Live)
+	r.GET("/health/ready", healthHandler.Ready)
 
 	return r, nil
 }

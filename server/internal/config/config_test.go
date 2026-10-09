@@ -7,7 +7,10 @@ func TestLoad(t *testing.T) {
 	t.Setenv("HTTP_ADDR", ":9090")
 	t.Setenv("DATABASE_URL", "postgres://example")
 
-	cfg := Load()
+	cfg, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if cfg.AppEnv != "test" {
 		t.Fatalf("AppEnv = %q, want %q", cfg.AppEnv, "test")
