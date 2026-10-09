@@ -101,7 +101,8 @@ Giới hạn hiện tại:
 - Thiết lập `.gitignore` để không đưa `node_modules`, `.env`, khóa bảo mật, dữ liệu PostgreSQL cục bộ và artifact của công cụ vào repository.
 - Tạo commit đầu tiên với thông điệp `docs: establish Gym project baseline v0.3`.
 - Commit này chứa package tài liệu v0.3, nhật ký dự án, script kiểm tra tài liệu và các file Excel đầu ra hiện có.
-- Việc publish lên GitHub cần hoàn tất sau khi đăng nhập tài khoản GitHub.
+- Đã publish lên repository riêng tư: `https://github.com/tlong15306/ttcsn-gym-management`.
+- Nhánh local `main` đã theo dõi nhánh `origin/main` trên GitHub.
 
 ## 4. Điểm bắt đầu học code
 
