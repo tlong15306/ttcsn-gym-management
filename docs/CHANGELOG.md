@@ -1,5 +1,11 @@
 # Changelog tài liệu
 
+## Harness design v1.0 — 10/10/2026
+
+- Bổ sung `17_thiet_ke_harness.md`: runner Node/TypeScript, Codex Architect/Reviewer, Antigravity Worker, verifier độc lập, worktree/DB test, bounded retry/resume và backlog triển khai.
+- Thêm `.harness/README.md`, 4 schema JSON và task khởi đầu HAR-001; chưa triển khai runner hoặc khởi chạy agent.
+- Cập nhật bản đồ tài liệu và nhật ký theo backend health/pgxpool hiện có. Baseline nghiệp vụ vẫn là v0.3; không đổi REQ/UC/BR/schema GYM.
+
 ## v0.3 — 10/10/2026
 
 ### Baseline mới

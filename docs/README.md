@@ -21,6 +21,9 @@ Nhật ký học và tự phát triển của sinh viên nằm tại `../NHAT_KY
 | 11 | `13_backlog_v0.3.md` | Ưu tiên, phụ thuộc, trạng thái phân tích/triển khai. |
 | 12 | `15_ke_hoach_kiem_thu.md` | Kiểm thử yêu cầu, dữ liệu, đồng thời, bảo mật và NFR. |
 | 13 | `16_runbook_van_hanh_nang_cap.md` | Migration, backup/restore, job nền và xử lý sự cố. |
+| 14 | [17_thiet_ke_harness.md](17_thiet_ke_harness.md) | Thiết kế runner tự động, task contracts, kiểm thử/review, retry/resume và backlog xây harness. |
+
+Harness hiện có [schema và task mẫu HAR-001](../.harness/README.md); chưa có runner thực thi. Baseline nghiệp vụ GYM vẫn là v0.3.
 
 `14_ke_hoach_hoan_thien_tai_lieu.md` là kế hoạch và biên bản rà soát đầu vào. `01_khao_sat_chuc_nang.md`, `05_khung_tien_do_10_tuan.md` và `10_so_sanh_cong_nghe.md` là tài liệu tham khảo; khi có xung đột, baseline v0.3 ở bảng trên được ưu tiên.
 
@@ -34,7 +37,7 @@ Nhật ký học và tự phát triển của sinh viên nằm tại `../NHAT_KY
 
 ## Trạng thái xác minh
 
-Bộ tài liệu đã được đối chiếu tĩnh về mã REQ/UC, quyền, trạng thái và trường dữ liệu. Chưa có mã nguồn ứng dụng hoặc PostgreSQL runtime trong workspace để xác nhận DDL, migration, API, hiệu năng, tải, backup hoặc restore.
+Bộ tài liệu đã được đối chiếu tĩnh về mã REQ/UC, quyền, trạng thái và trường dữ liệu. Backend hiện đã có config, Gin health endpoints và pool PostgreSQL; sinh viên đã chạy API kết nối DB thành công. Schema/migration và nghiệp vụ GYM, frontend, hiệu năng, tải, backup/restore chưa được xác minh runtime. Thiết kế harness cũng chưa chứng minh một agent run thành công.
 
 Chạy kiểm tra nhất quán sau mỗi lần sửa:
 
