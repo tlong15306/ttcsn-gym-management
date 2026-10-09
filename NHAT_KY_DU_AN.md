@@ -26,6 +26,16 @@ Tôi không muốn nhận một dự án đã được viết hoàn chỉnh mà 
 
 Codex đóng vai trò hướng dẫn, giải thích, review và hỗ trợ tìm lỗi. Tôi là người trực tiếp viết và chạy code để học.
 
+### Nền tảng đã học và cách điều chỉnh hướng dẫn — 10/10/2026
+
+- Theo thông tin tôi cung cấp, tôi đã học Go cơ bản, syntax và CRUD cơ bản trong project `C:\Users\choqu\OneDrive\Desktop\GO\ginrr`.
+- Khung tham khảo backend là `C:\Users\choqu\OneDrive\Desktop\GO\khoa-hoc-lap-trinh-restful-api-voi-gin-framework\lesson12-project-shopping-cart`.
+- Codex đã đọc các file khởi động, lắp ghép module, handler, service và repository của khung tham khảo; chưa chạy project đó trong buổi này.
+- Hướng dẫn tiếp theo tập trung vào cấu trúc backend, nối dependency và áp dụng nghiệp vụ GYM. Không cần học lại chương trình Hello World hoặc syntax từ đầu.
+- Giữ cách chia trách nhiệm Handler → Service/Usecase → Repository. Theo kiến trúc GYM đã chốt, use case nhận `context.Context`, không nhận `gin.Context`; dependency DB được truyền vào constructor thay vì truy cập DB global.
+- Tạo dần các phần khi cần dùng. Redis, RabbitMQ và mail trong khung mẫu chưa được chọn làm phụ thuộc bắt buộc cho bước khởi tạo GYM.
+- Trạng thái mã nguồn GYM: đã tạo Go module và khung API Gin tối thiểu; PostgreSQL và nghiệp vụ GYM chưa được kết nối.
+
 ## 3. Bối cảnh trước khi bắt đầu code
 
 Các mục dưới đây được tổng hợp từ tài liệu trong workspace. Chúng mô tả quá trình chuẩn bị dự án; không tự động chứng minh phần mềm đã được triển khai.
@@ -109,9 +119,9 @@ Giới hạn hiện tại:
 Thứ tự học và phát triển đã thống nhất:
 
 1. Kiểm tra môi trường Go, Node.js, npm, PostgreSQL và Git.
-2. Khởi tạo Go module và hiểu cấu trúc chương trình Go.
-3. Cài Gin và tự viết endpoint `/health` đầu tiên.
-4. Hiểu Handler → Usecase → Repository qua ví dụ nhỏ.
+2. Khởi tạo Go module và entry point `cmd/api`, dựa trên nền tảng Go đã học.
+3. Cài Gin, tách router/handler và tự viết endpoint `/health/live` đầu tiên.
+4. Hiểu cách nối Handler → Usecase → Repository qua chức năng GYM nhỏ.
 5. Khởi tạo PostgreSQL test và kiểm tra schema v0.3.
 6. Kết nối Go với PostgreSQL.
 7. Làm Identity: đăng nhập, tài khoản và phân quyền.
@@ -157,6 +167,30 @@ Kết quả kiểm tra: `POSTGRES_USER=root`, `POSTGRES_DB=master-golang`.
 Kết quả xác nhận server: PostgreSQL `17.11`.  
 **Trạng thái Buổi 00:** Hoàn thành.  
 **Bước tiếp theo:** Khởi tạo Go module trong thư mục `server` và hiểu file `go.mod`.
+
+### Buổi 01 — Khởi tạo API Gin và liveness endpoint
+
+**Ngày:** 10/10/2026
+**Mục tiêu:** Tạo module backend GYM, tách entry point khỏi router/handler và xác nhận API chạy được.
+
+**Việc đã làm:**
+
+- Tạo module `github.com/tlong15306/ttcsn-gym-management/server` tại `server/go.mod` bằng Go `1.26.5`.
+- Cài Gin và tạo `cmd/api/main.go` làm entry point khởi động HTTP server.
+- Tạo `internal/delivery/http/router/router.go` với `gin.New()`, `gin.Logger()`, `gin.Recovery()` và `SetTrustedProxies(nil)`.
+- Tạo `internal/delivery/http/handler/health_handler.go`; handler trả JSON `{ "status": "ok" }` cho `GET /health/live`.
+- Phát hiện file placeholder rỗng `internal/app/app.go` khiến `go test ./...` lỗi vì thiếu khai báo `package`; file này đã được xóa vì chưa thuộc cấu trúc đang dùng.
+
+**Kết quả kiểm tra:**
+
+- API chạy tại `http://localhost:8080`.
+- `GET /health/live` đã được kiểm tra bằng Postman và Gin log ghi HTTP `200`.
+- `go test ./...` chạy thành công cho `cmd/api`, `handler` và `router`.
+
+**Điều tôi đã hiểu:** `main` chỉ khởi động chương trình; router đăng ký URL và middleware; handler đọc/trả HTTP response. Liveness kiểm tra process API còn phản hồi, không kiểm tra database. Endpoint readiness kiểm tra PostgreSQL sẽ được thêm sau khi có cấu hình/kết nối DB.
+
+**Trạng thái Buổi 01:** Hoàn thành.
+**Bước tiếp theo:** Thêm cấu hình môi trường không chứa secret và khởi tạo kết nối PostgreSQL cho endpoint readiness.
 
 ## 6. Mẫu ghi cho mỗi buổi học/code
 
@@ -214,9 +248,9 @@ lệnh ở đây
 | Mốc | Trạng thái | Bằng chứng | Điều tôi cần giải thích được |
 |---|---|---|---|
 | Môi trường phát triển | Hoàn thành | Node 24.19.0, npm 11.17.0, Go 1.26.5, Git 2.55.0, Docker 29.8.1, PostgreSQL 17.11 | Vai trò của Go, Node, PostgreSQL, Docker và Git |
-| Go cơ bản + module | Chưa bắt đầu | `go.mod`, chương trình chạy | package, module, import, function |
-| Gin `/health` | Chưa bắt đầu | HTTP 200 từ endpoint | router, handler, request/response |
-| Cấu trúc backend | Chưa bắt đầu | module mẫu có test | Handler, Usecase, Repository khác nhau thế nào |
+| Go cơ bản + module | Hoàn thành cho GYM | `server/go.mod`; module `github.com/tlong15306/ttcsn-gym-management/server` | Module GYM, entry point và import giữa các package |
+| Gin `/health/live` | Hoàn thành | Postman và Gin log HTTP 200; `go test ./...` pass | Cách nối router/handler và ý nghĩa liveness |
+| Cấu trúc backend | Đang bắt đầu | `main` → `router` → `HealthHandler` | Handler, Usecase, Repository khác nhau thế nào |
 | PostgreSQL/schema | Chưa bắt đầu | DDL chạy trên DB test | bảng, PK, FK, CHECK, UNIQUE, index |
 | Auth/RBAC | Chưa bắt đầu | test login/quyền | hash, token, authentication, authorization |
 | Master data | Chưa bắt đầu | API Member/PT/Room/Session | validate và vòng đời dữ liệu |
