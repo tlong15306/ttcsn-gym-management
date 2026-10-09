@@ -11,7 +11,7 @@
 | Nhóm | Nhóm 1 |
 | Công nghệ dự kiến | React + Tailwind CSS, Go + Gin, PostgreSQL 16+ |
 | Thời điểm bắt đầu ghi nhật ký | 10/10/2026 |
-| Trạng thái hiện tại | Baseline v0.3; API Gin health và pool PostgreSQL đã chạy; harness mới có thiết kế/contracts, chưa triển khai |
+| Trạng thái hiện tại | Baseline v0.3; API Gin health và pool PostgreSQL đã chạy; nghiệp vụ GYM chưa triển khai |
 
 ## 2. Cách tôi sẽ học và làm dự án
 
@@ -25,8 +25,6 @@ Tôi không muốn nhận một dự án đã được viết hoàn chỉnh mà 
 6. Chỉ chuyển sang bước mới khi đã hiểu phần đang làm.
 
 Codex đóng vai trò hướng dẫn, giải thích, review và hỗ trợ tìm lỗi. Tôi là người trực tiếp viết và chạy code để học.
-
-**Điều chỉnh ngày 10/10/2026:** tôi yêu cầu thiết kế harness tự động hoàn thiện dự án dựa trên master plan nhiều agent. Cách học ban đầu ở trên được giữ làm lịch sử. Hướng mới dự kiến là agent triển khai theo task, tôi đọc diff/walkthrough và review từng milestone; có thể bật `milestone_pause` khi cần học kỹ. Buổi thiết kế này chưa chạy tự động hóa hoặc chứng minh tôi đã hiểu code do agent tạo.
 
 ### Nền tảng đã học và cách điều chỉnh hướng dẫn — 10/10/2026
 
@@ -246,20 +244,6 @@ Kết quả xác nhận server: PostgreSQL `17.11`.
 **Trạng thái Buổi 03:** Hoàn thành.
 **Bước tiếp theo:** Viết unit test cho health handler với fake readiness checker, sau đó bắt đầu migration/schema cho PostgreSQL.
 
-### Buổi 04 — Thiết kế harness tự động hoàn thiện GYM
-
-- **Ngày:** 10/10/2026.
-- **Yêu cầu:** thiết kế từ `MASTER_PLAN_MULTI_AGENT.md` do tôi cung cấp, đối chiếu với code và baseline GYM thực tế.
-- **Người thực hiện:** Codex đọc plan, source/docs, CLI help và tài liệu chính thức; tôi chưa xác nhận đã review toàn bộ thiết kế.
-- **Artifact:** `docs/17_thiet_ke_harness.md`, `.harness/README.md`, 4 JSON Schema và `.harness/tasks/HAR-001.json`.
-- **Quyết định:** runner Node/TypeScript giữ state/DAG/budget; Codex Architect/Reviewer; Antigravity Worker; verifier độc lập; worktree và DB test riêng; retry có giới hạn; resume theo checkpoint. 9Router là adapter tùy chọn cần probe.
-- **Hiện trạng xác minh:** Codex CLI local có headless/JSON flags. `agy` và Docker không resolve trong PATH của executor khảo sát; không kết luận máy chưa cài IDE/Docker. Chưa chạy provider probe.
-- **Đã làm:** thiết kế workflow, state machine, quyền từng vai trò, gates và điều kiện hoàn thành dự án; backlog HAR-001…007 rồi các epic GYM. Đã cập nhật bản đồ tài liệu và trạng thái cũ của nhật ký.
-- **Chưa làm:** TypeScript runner, SQLite runtime, prompts/gate registry, agent call, sandbox runtime, isolated DB, nghiệp vụ GYM hoặc frontend.
-- **Kiểm tra artifact:** HAR-001 khớp task schema; 3 output schema validate với dữ liệu giả trong bộ nhớ; task schema từ chối field runtime `status`; acceptance chỉ tham chiếu gate có trong task. `docs/check_docs.ps1` PASS (20 REQ, 16 UC, 26 BR, 14 bảng, 0 DROP). Các kiểm tra này không chứng minh harness đã vận hành.
-- **Điều cần hiểu:** agent viết code; runner quản lý workflow; verifier tạo bằng chứng test; reviewer đánh giá diff. Task chỉ được nhận sau retest kết quả tích hợp.
-- **Bước tiếp theo dự kiến:** triển khai HAR-001 doctor/config/fixture; các task tiếp theo có dependency và gate riêng. Chưa bắt đầu Auth/Booking trong buổi này.
-
 ## 6. Mẫu ghi cho mỗi buổi học/code
 
 Sao chép mẫu này xuống cuối file sau mỗi buổi:
@@ -322,7 +306,6 @@ lệnh ở đây
 | PostgreSQL/schema | Đã kết nối pool; chưa chạy schema/migration | API ping PostgreSQL qua `pgxpool` | pool, URL config, bảng, PK, FK, CHECK, UNIQUE, index |
 | Cấu hình môi trường | Hoàn thành bước đọc config | `.env.example`, config test và `SetTrustedProxies(nil)` | secret khác template config; proxy tin cậy ảnh hưởng IP client |
 | Health readiness | Hoàn thành | `/health/ready` ping PostgreSQL | liveness khác readiness; dependency được truyền qua interface |
-| Harness tự động | Đã thiết kế; chưa triển khai | `docs/17_thiet_ke_harness.md`; `.harness/tasks/HAR-001.json` | Runner, worker, verifier, reviewer và điều kiện nhận task khác nhau thế nào |
 | Auth/RBAC | Chưa bắt đầu | test login/quyền | hash, token, authentication, authorization |
 | Master data | Chưa bắt đầu | API Member/PT/Room/Session | validate và vòng đời dữ liệu |
 | Booking core | Chưa bắt đầu | test race/conflict | transaction, lock, idempotency |
@@ -348,5 +331,3 @@ lệnh ở đây
 - `docs/11_kien_truc_he_thong.md`: code được chia thành các phần nào.
 - `docs/12_dac_ta_API.md`: frontend/backend giao tiếp ra sao.
 - `docs/15_ke_hoach_kiem_thu.md`: chứng minh code đúng bằng cách nào.
-- `docs/17_thiet_ke_harness.md`: điều phối agent để hoàn thiện dự án có kiểm chứng.
-- `.harness/README.md`: contracts và task đầu tiên để triển khai runner.

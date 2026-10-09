@@ -1,5 +1,11 @@
 # Local tooling and dependencies
 .codex_artifact/
+# Harness is local-only; do not force-add or publish these paths
+/.harness/
+/tools/harness/
+/infra/harness/
+/docs/17_thiet_ke_harness.md
+/docs/reports/harness/
 node_modules/
 client/node_modules/
 server/bin/
