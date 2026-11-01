@@ -38,6 +38,7 @@ Năm tác nhân: MEMBER, PT, RECEPTIONIST, MANAGER, ADMIN. `booking` là một c
 ### REQ-04 — Quản lý phòng (Must)
 
 - UC: UC-10. Quản lý/Admin tạo, sửa mô tả/loại/sức chứa mặc định và trạng thái.
+- Amendment 11/10/2026: đăng ký lịch tuần 7×24 theo từng phòng, preview/xác nhận và version hiệu lực; ngoại lệ CLOSED/REPLACE theo ngày, rút ngoại lệ giữ lịch sử. Chỉ Admin/Manager sửa; cả 5 role đọc lịch thực tế. Hợp đồng và hành vi: `21_huong_dan_lich_phong.md`.
 - Tên phòng duy nhất không phân biệt hoa thường; phòng đã tham chiếu chỉ vô hiệu hóa/bảo trì.
 - Chuyển bảo trì phải hiển thị phiên/booking tương lai bị ảnh hưởng, không tự xóa.
 
@@ -46,18 +47,21 @@ Năm tác nhân: MEMBER, PT, RECEPTIONIST, MANAGER, ADMIN. `booking` là một c
 - UC: UC-11. Quản lý/Admin tạo ca chung không chồng giờ và mở phiên phòng theo ngày.
 - Ca có tên, giờ bắt đầu/kết thúc, trạng thái; phiên phòng có timestamps, capacity và OPEN/CLOSED/MAINTENANCE.
 - Không sửa giờ ca đã dùng; không giảm capacity phiên dưới số booking giữ chỗ.
+- Ca cho phép kết thúc 24:00, không bắt đầu 24:00. Phiên mới phải nằm trọn một khoảng mở của phòng; chặn OPEN chồng thời gian. Sinh phiên 28 ngày từ ca đang hoạt động, job startup/00:05 Việt Nam bổ sung thiếu, không đổi snapshot hoặc mở phiên đóng thủ công. Phòng legacy chuyển gate sau công bố đầu tiên. Booking giữ chỗ chặn công bố làm mất giờ phiên tương lai.
 
 ### REQ-06 — Tạo booking, PT tùy chọn (Must)
 
 - UC: UC-02. Hội viên đặt cho mình; Lễ tân/Admin đặt hộ.
 - Hệ thống thực thi BR-03…BR-15 trong một transaction, dùng `Idempotency-Key`.
 - Không PT → CONFIRMED; có PT → PENDING_PT với `respond_by`.
+- Ghi `confirmed_at` tại lúc tự tập được xác nhận hoặc PT nhận yêu cầu; booking cũ thiếu chứng cứ giữ null.
 - Nghiệm thu: không vượt capacity, không xung đột member/PT, retry không tạo trùng, không trả thành công trước commit.
 
 ### REQ-07 — Hủy booking (Must)
 
 - UC: UC-06. Hội viên hủy theo mốc 2 giờ; PT xử lý lịch được gán; nhân viên hủy ngoại lệ có lý do.
 - Chỉ trạng thái cho phép mới chuyển CANCELLED; thao tác lặp không giải phóng hai lần.
+- Lưu nguồn hủy MEMBER/PT/FACILITY cùng role actor tại thời điểm hủy; bản ghi lịch sử thiếu bằng chứng được phân loại UNKNOWN, không suy ra từ role hiện tại hoặc lý do.
 - Nghiệm thu: test biên đúng 2 giờ ±1 giây, quyền sở hữu, đồng thời với check-in/job.
 
 ### REQ-08 — Chống xung đột và quá tải (Must)
@@ -172,8 +176,8 @@ Năm tác nhân: MEMBER, PT, RECEPTIONIST, MANAGER, ADMIN. `booking` là một c
 | 03,11 | 09 | 03,24–25 | members | MEMBER |
 | 04 | 10 | 09–10,24 | rooms | FACILITY |
 | 05 | 11 | 06–10 | time_slots, room_sessions | SLOT/SESSION |
-| 06,08 | 02 | 03–16 | bookings, idempotency_keys | BOOK/RACE |
-| 07 | 06 | 17–18 | bookings, audit_events | CANCEL |
+| 06,08 | 02 | 03–16 | bookings, idempotency_keys | BOOK/RACE/CONFIRMATION |
+| 07 | 06 | 17–18 | bookings, audit_events | CANCEL/PROVENANCE |
 | 09 | 04 | 19–20 | booking_attendance | ATTEND |
 | 10 | 14 | 20–23 | bookings, attendance, reviews | REPORT |
 | 12 | 08 | 01–02,25 | users, roles | ACCOUNT |
@@ -188,3 +192,9 @@ Năm tác nhân: MEMBER, PT, RECEPTIONIST, MANAGER, ADMIN. `booking` là một c
 ## 7. Phê duyệt và thay đổi
 
 Tài liệu này chưa tự tuyên bố chữ ký. Khi nhóm rà soát, ghi tên, ngày, phiên bản và vấn đề còn mở trong biên bản thực tế. Thay đổi BR hoặc phạm vi cần cập nhật decision log, SRS, use case, schema, API, backlog và test liên quan.
+
+## 8. Bổ sung UI/UX công khai U1 — 31/10/2026
+
+**Cập nhật U2–U4 ngày 01/11/2026:** khách được thử chọn dải giờ; Hội viên dùng lịch tuần/ngày với khối kéo/chỉnh bám theo session thật, tối đa 24 ca liên tiếp trong cùng ngày. Điện thoại vẫn xem đủ tuần bằng cuộn nội bộ, tách chế độ xem và chọn; có thao tác thay thế bằng chạm, bàn phím và ô giờ. Bản nháp 30 phút trong sessionStorage không chứa thông tin đăng nhập, được gắn với Hội viên sau login, kiểm tra lại ca/điều kiện/HLV trước xác nhận và xóa khi đặt thành công/đăng xuất. HLV không còn phù hợp phải được người dùng chọn lại hình thức tập, không âm thầm chuyển tự tập. Xác nhận tiếp tục dùng API all-or-none/idempotency hiện hữu. Không thay schema/BR hay thêm role; U4 local không thay thế nghiệm thu NFR toàn MVP. Báo cáo: `reports/public_booking_u2_u4_2026-11-01.md`. Đoạn U1 sau đây lưu phạm vi lịch sử.
+
+Theo quyết định bổ sung trong `00_quyet_dinh_va_quy_tac_nghiep_vu.md`, khách được xem trang chủ, tìm phòng, HLV và lịch 7 ngày mà không cần đăng nhập. Guest là chế độ truy cập, không thêm role tài khoản thứ sáu. Dữ liệu được giới hạn bởi projection public và visibility tại backend; không thay đổi schema hay mở mutation. Đặt lịch và dữ liệu cá nhân vẫn cần tài khoản đúng quyền; khách bấm đặt được đưa tới login và Hội viên quay lại đúng phòng/ngày. Điện thoại giữ khả năng xem đủ 7 ngày bằng cuộn ngang trong khung lịch. Bản nháp dải giờ và kéo chỉnh grid mới thuộc U2/U3 theo kế hoạch 35, chưa thuộc bàn giao U1.

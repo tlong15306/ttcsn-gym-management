@@ -1,6 +1,6 @@
 # Kế hoạch kiểm thử baseline v0.3
 
-Trạng thái: **Kế hoạch, chưa chạy**. PASS chỉ được ghi khi có môi trường, phiên bản code/schema, log và kết quả tương ứng.
+Trạng thái: **Kế hoạch kiểm thử toàn MVP**. Kết quả đã chạy từng module nằm trong `reports/`; các cổng còn thiếu không tự coi là đạt. PASS chỉ được ghi khi có môi trường, phiên bản code/schema, log và kết quả tương ứng.
 
 ## 1. Mức kiểm thử
 
@@ -69,3 +69,9 @@ Mỗi lần chạy ghi: commit/build ID, migration version, PostgreSQL version, 
 - G3: RACE/STATE/IDEMP pass trên PostgreSQL thật.
 - G4: E2E 5 vai trò pass; 0 lỗi Critical/High chưa có xử lý.
 - G5: NFR report và restore drill có bằng chứng; giới hạn chưa đạt được ghi rõ.
+
+## 6. Amendment kiểm thử lịch phòng — 11/10/2026
+
+Các cổng phía trên vẫn là mục tiêu cho toàn MVP. Lịch phòng có unit interval/timezone/priority, PostgreSQL/API revision/preview/holds/rollback/idempotency/restart/job, cùng frontend grid/form/xác nhận/giữ nháp. Case sửa ngoại lệ phải giữ WITHDRAWN cũ và ACTIVE mới, không cho đổi ngày hoặc rút lại bản cũ. Báo cáo kết quả từng phạm vi tại `reports/room_calendar_verification_2026-10-11.md`.
+
+Còn phải kiểm tra trực tiếp UI ngoại lệ/chỉ đọc, 375/768/1024/1440px, zoom 200%, focus/touch; browser bị auto-review chặn do hạn mức trong lần này. Job startup/lặp đã chạy, chưa chờ đồng hồ 00:05; chưa có race Booking API vì module đó chưa triển khai. Không đánh dấu G4/G5 toàn MVP đạt chỉ từ test lịch phòng.

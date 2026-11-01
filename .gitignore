@@ -1,22 +1,49 @@
 # Local tooling and dependencies
 .codex_artifact/
-# Harness is local-only; do not force-add or publish these paths
+.artifact_work/
+/.codex/
+/.agents/
+__pycache__/
+*.py[cod]
+
+# Coursework exports stay local; source and project documentation live below.
+/outputs_document/
+/s
+
+# Generated spreadsheet inspection and preview files
+/outputs_document/**/*.inspect.ndjson
+/outputs_document/**/previews/
+/outputs_document/**/previews_*/
+
+# DeepSeek Harness is local-only; do not force-add or publish these paths
 /.harness/
-/tools/harness/
-/infra/harness/
 /docs/17_thiet_ke_harness.md
 /docs/reports/harness/
 node_modules/
 client/node_modules/
+client/dist/
+client/.test-temp/
 server/bin/
 bin/
+dist/
+*.exe
+*.dll
+*.test
+*.tsbuildinfo
 
 # Secrets and local environment configuration
 .env
 .env.*
 !.env.example
+!.env.local.example
+!infra/.env.compose.example
+infra/.env.compose
 *.pem
 *.key
+*.pfx
+*.p12
+.netrc
+.npmrc
 
 # Local databases, uploads, test output, and coverage
 postgres-data/
@@ -24,6 +51,19 @@ data/
 uploads/
 coverage/
 *.coverprofile
+*.log
+*.dump
+*.backup
+*.bundle
+*.db
+*.sqlite
+*.sqlite3
+*.prof
+*.cpu
+*.tmp
+*.bak
+.pytest_cache/
+.cache/
 
 # Editor and operating-system files
 .vscode/
@@ -31,3 +71,4 @@ coverage/
 *.swp
 Thumbs.db
 Desktop.ini
+.DS_Store

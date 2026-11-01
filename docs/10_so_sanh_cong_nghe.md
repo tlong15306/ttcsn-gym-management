@@ -185,7 +185,7 @@ flowchart LR
 1. **Thiết lập môi trường dùng chung (Tuần 2):** Toàn bộ 4 thành viên cài đặt Go 1.22+, PostgreSQL 16+, Node.js LTS (cho frontend), VS Code và cấu hình tài khoản GitHub.
 2. **Khởi tạo khung dự án (Scaffolding):**
    - Thiết lập cấu trúc thư mục Client (`/client`) bằng Vite + React + Tailwind CSS.
-   - Thiết lập cấu trúc thư mục Server (`/server`) theo chuẩn Go Clean Architecture / 3-Tier (`cmd/`, `internal/delivery/http/`, `internal/usecase/`, `internal/repository/`, `internal/domain/`).
+   - Thiết lập cấu trúc thư mục Server (`/server`) theo chuẩn project Gin tham chiếu: `cmd/`, `internal/app/`, `internal/handler/v1/`, `internal/service/v1/`, `internal/repository/`, `internal/routes/v1/`, `internal/dto/v1/`, `internal/middleware/`, `internal/db/` và `pkg/auth/`.
 3. **Phân công nhiệm vụ kỹ thuật:**
    - **Nguyễn Quang Đảm & Nguyễn Thành Long:** Phụ trách thiết kế CSDL PostgreSQL, xây dựng Backend API bằng Golang (Gin), cơ chế xác thực JWT, phân quyền RBAC và thuật toán kiểm tra xung đột lịch đặt phòng bằng Database Transaction.
    - **Lê Công Quân & Nguyễn Xuân Mạnh:** Phụ trách thiết kế Wireframe Figma, xây dựng Frontend React components, kết nối API Go RESTful và hoàn thiện trải nghiệm người dùng.

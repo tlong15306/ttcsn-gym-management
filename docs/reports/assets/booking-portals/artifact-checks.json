@@ -1,0 +1,67 @@
+{
+  "screens": [
+    {
+      "name": "member-desktop",
+      "width": 1440,
+      "height": 900,
+      "text_elements": 61,
+      "out_of_canvas_text": []
+    },
+    {
+      "name": "pt-desktop",
+      "width": 1440,
+      "height": 900,
+      "text_elements": 80,
+      "out_of_canvas_text": []
+    },
+    {
+      "name": "member-mobile",
+      "width": 375,
+      "height": 812,
+      "text_elements": 38,
+      "out_of_canvas_text": []
+    },
+    {
+      "name": "pt-mobile",
+      "width": 375,
+      "height": 812,
+      "text_elements": 40,
+      "out_of_canvas_text": []
+    }
+  ],
+  "contrast": [
+    {
+      "pair": "ink / white",
+      "ratio": 16.12
+    },
+    {
+      "pair": "muted / canvas",
+      "ratio": 5.83
+    },
+    {
+      "pair": "member button",
+      "ratio": 7.13
+    },
+    {
+      "pair": "pt button",
+      "ratio": 5.17
+    },
+    {
+      "pair": "warning",
+      "ratio": 6.84
+    },
+    {
+      "pair": "danger",
+      "ratio": 5.91
+    },
+    {
+      "pair": "member selected",
+      "ratio": 6.81
+    },
+    {
+      "pair": "pt selected",
+      "ratio": 4.68
+    }
+  ],
+  "scope": "Static fictional design only; no application/browser/DB interaction verified."
+}

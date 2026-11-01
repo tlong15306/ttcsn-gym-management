@@ -3,7 +3,7 @@
 ## 1. Phân loại artifact
 
 - `09_schema.sql`: bootstrap CSDL mới/rỗng; không chứa DROP; không chạy trên dữ liệu hiện hữu.
-- `migrations/NNNN_description.up.sql`: thay đổi production có phiên bản.
+- `server/internal/db/migrations/NNNN_description.sql`: thay đổi production có phiên bản.
 - `seeds/dev.sql`, `seeds/test.sql`: dữ liệu giả cho dev/test; không chạy production.
 - Reset demo nếu cần phải là script riêng, tên có chữ `reset_demo`, chỉ cho môi trường được xác nhận.
 
@@ -96,3 +96,24 @@ Room full sai, booking vượt capacity, member/PT trùng ca, nhiều lock wait/
 - [ ] Job/health/metrics/log và cảnh báo hoạt động.
 - [ ] Kế hoạch roll-forward/rollback, chủ sở hữu và cửa sổ rõ.
 - [ ] Giới hạn chưa kiểm chứng được ghi trong release note.
+
+## 9. Lịch phòng local — migration v3 và sinh phiên
+
+Trên DB dev chỉ chạy `go run .\cmd\migrate up`; v3 thêm bảng/constraints, giữ ID/FK và từ chối dữ liệu phiên OPEN overlap. Không xóa phiên legacy để migration qua; kiểm tra các cặp phòng/giờ xung đột và xử lý có lý do/audit trước khi thử lại. Rollback/reset chỉ đúng `ttcsn_gym_test`, không dùng để nâng cấp hoặc dừng demo.
+
+Sau upgrade, phòng legacy chưa có gate lịch; quản lý công bố tuần đầu tiên để chuyển có chủ đích. Phòng mới có gate ngay. API startup bù phiên còn thiếu, sau đó chạy lúc 00:05 Việt Nam, cửa sổ 28 ngày. Kiểm tra `calendar_prepared_through`/`calendar_job_error` trên trang lịch; xử lý lỗi an toàn trong API log rồi xem trước/xác nhận chuẩn bị lại. Không tự đổi capacity/snapshot hoặc mở lại phiên MANUAL/ROOM. Chi tiết retry, preview sau restart và tài khoản demo tại `21_huong_dan_lich_phong.md`.
+
+## 10. Review và báo cáo vận hành
+
+- Admin/Manager xem **Báo cáo** tại `/management/reports`, lọc theo kỳ và phòng, rồi tra cứu một PT. PT chỉ xem `/pt/performance` của mình và `/pt/reviews`; Member/Lễ tân không có quyền đọc báo cáo.
+- Kỳ mặc định là tháng hiện tại theo Asia/Ho_Chi_Minh; cho phép tối đa 366 ngày. `as_of` cho biết thời điểm chụp. Trạng thái booking là trạng thái hiện tại của các buổi trong kỳ, không phải số sự kiện thay đổi trạng thái trong kỳ.
+- `N/A` nghĩa là mẫu số bằng 0 hoặc chưa có đánh giá; không đổi thành 0%. Chỉ số sử dụng là seat-minute đã đặt trên phiên OPEN đã kết thúc, không phải thời gian tập đo được và không phải doanh thu.
+- PT review dùng nhãn ẩn danh “Hội viên”; response không chứa định danh hay thông tin liên hệ người đánh giá. API report và các phép tính nguồn được kiểm thử bằng integration test PostgreSQL; frontend tests dùng API mock.
+
+### Trình tự demo nghiệp vụ khi chủ động chạy local
+
+1. Theo các bước trong `17_huong_dan_chay_local.md`, chạy PostgreSQL, migrate/seed, API và client. Nếu cần phòng/ảnh/lịch synthetic, chỉ chạy fixture opt-in đã mô tả trong hướng dẫn local.
+2. Admin/Manager kiểm tra phòng và lịch được công bố. Member chọn một phòng, xem trang chi tiết/ảnh, chọn ca và PT nếu muốn, rồi xác nhận booking.
+3. PT đăng nhập và xử lý yêu cầu. Trong buổi hợp lệ, vận hành ghi attendance Hội viên và PT riêng. Chờ buổi qua giờ và job completion xử lý; không sửa timestamp hoặc trạng thái để giả lập buổi đã hoàn thành.
+4. Hội viên mở chi tiết booking `COMPLETED` đủ điều kiện và gửi review. PT đối chiếu review tại `/pt/reviews`, hiệu suất tại `/pt/performance`; Admin/Manager lọc đúng kỳ/phòng tại `/management/reports` và đối chiếu booking nguồn.
+5. Nếu không có buổi trong kỳ đã kết thúc phù hợp, phần completion/review/report chỉ có thể kiểm tra bằng test DB/API; không ghi nhận demo end-to-end UI đã đạt. Kết thúc thì Ctrl+C hai terminal ứng dụng; chỉ dừng Compose khi muốn dừng cả PostgreSQL.

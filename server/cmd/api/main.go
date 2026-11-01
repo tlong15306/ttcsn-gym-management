@@ -1,38 +1,27 @@
 package main
 
 import (
-	"context"
-	"log"
-	"time"
+	"log/slog"
+	"os"
 
+	"github.com/tlong15306/ttcsn-gym-management/server/internal/app"
 	"github.com/tlong15306/ttcsn-gym-management/server/internal/config"
-	"github.com/tlong15306/ttcsn-gym-management/server/internal/delivery/http/router"
-	"github.com/tlong15306/ttcsn-gym-management/server/internal/infrastructure/postgres"
 )
 
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("load config", "error", err)
+		os.Exit(1)
 	}
 
-	startupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	pool, err := postgres.Open(startupCtx, cfg.DatabaseURL)
+	application, err := app.NewApplication(cfg)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("initialize application", "error", err)
+		os.Exit(1)
 	}
-	defer pool.Close()
-
-	r, err := router.New(pool)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("PostgreSQL connected; starting API in %s mode", cfg.AppEnv)
-
-	if err := r.Run(cfg.HTTPAddr); err != nil {
-		log.Fatal(err)
+	if err := application.Run(); err != nil {
+		slog.Error("application stopped", "error", err)
+		os.Exit(1)
 	}
 }

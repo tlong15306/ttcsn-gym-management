@@ -1,0 +1,18 @@
+{
+  "mode": "built-in image_gen",
+  "usage": "AI-generated illustrative mockup images, not photos of actual rooms.",
+  "prompts": [
+    {
+      "id": "strength",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape cover photograph for a gym room browsing card in a Vietnamese gym booking UI mockup. Primary request: believable contemporary strength training room, neatly organized dumbbell racks, two sturdy squat racks, benches, black rubber flooring, tall windows with soft daylight, realistic architectural interior photography. Composition: wide horizontal 16:9, eye level, room equipment and walkways readable even when the image is reduced to a small card, no people. Natural neutral white and dark charcoal materials. Constraints: fictional room, no logos, no brands, no writing, no UI, no borders, no text, no watermark, no collage."
+    },
+    {
+      "id": "cardio",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape cover photograph for a gym room browsing card in a Vietnamese gym booking UI mockup. Primary request: believable contemporary cardio room with a row of treadmills, exercise bicycles, generous walking space, large windows, daylight, clean pale walls, gray flooring, realistic architectural interior photography. Composition: wide horizontal 16:9, eye level, clearly distinct from a strength room, equipment and open walking space readable at card size, no people. Constraints: fictional room, no logos, no brands, no writing, no UI, no borders, no text, no watermark, no collage."
+    },
+    {
+      "id": "pt",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape cover photograph for a gym room browsing card in a Vietnamese gym booking UI mockup. Primary request: believable contemporary small private personal training room, exercise mat, compact functional training rig, adjustable dumbbells, bench, resistance bands, airy white interior with light wood accents and soft natural daylight, realistic architectural interior photography. Composition: wide horizontal 16:9, eye level, limited equipment and intimate training space clearly distinguish this from a large public gym room, no people. Constraints: fictional room, no logos, no brands, no writing, no UI, no borders, no text, no watermark, no collage."
+    }
+  ]
+}

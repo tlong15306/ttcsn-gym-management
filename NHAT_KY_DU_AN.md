@@ -302,16 +302,16 @@ lệnh ở đây
 | Môi trường phát triển | Hoàn thành | Node 24.19.0, npm 11.17.0, Go 1.26.5, Git 2.55.0, Docker 29.8.1, PostgreSQL 17.11 | Vai trò của Go, Node, PostgreSQL, Docker và Git |
 | Go cơ bản + module | Hoàn thành cho GYM | `server/go.mod`; module `github.com/tlong15306/ttcsn-gym-management/server` | Module GYM, entry point và import giữa các package |
 | Gin `/health/live` | Hoàn thành | Postman và Gin log HTTP 200; `go test ./...` pass | Cách nối router/handler và ý nghĩa liveness |
-| Cấu trúc backend | Đang bắt đầu | `main` → `config`/`router` → `HealthHandler` | Handler, Usecase, Repository khác nhau thế nào |
-| PostgreSQL/schema | Đã kết nối pool; chưa chạy schema/migration | API ping PostgreSQL qua `pgxpool` | pool, URL config, bảng, PK, FK, CHECK, UNIQUE, index |
+| Cấu trúc backend | Đã triển khai package tuần 4 | `internal/app` → `handler/v1` → `service/v1` → `repository`; `routes/v1`, `dto/v1`, `middleware`, `db`, `pkg/auth` | Handler, Service, Repository khác nhau thế nào |
+| PostgreSQL/schema | Đã chạy DB thật | Docker Compose PostgreSQL 17, Goose migration v1, seed 5 role và integration test trên `ttcsn_gym_test` PASS | pool, URL config, bảng, PK, FK, CHECK, UNIQUE, index |
 | Cấu hình môi trường | Hoàn thành bước đọc config | `.env.example`, config test và `SetTrustedProxies(nil)` | secret khác template config; proxy tin cậy ảnh hưởng IP client |
 | Health readiness | Hoàn thành | `/health/ready` ping PostgreSQL | liveness khác readiness; dependency được truyền qua interface |
-| Auth/RBAC | Chưa bắt đầu | test login/quyền | hash, token, authentication, authorization |
-| Master data | Chưa bắt đầu | API Member/PT/Room/Session | validate và vòng đời dữ liệu |
+| Auth/RBAC | Đã triển khai và unit test PASS | bcrypt, JWT HS256, `auth_version`, middleware RBAC, test service/middleware/auth | hash, token, authentication, authorization |
+| Master data | Codex đã triển khai và kiểm thử local | API/UI Member/PT/Room/TimeSlot/Session; báo cáo CRUD ngày 11/10/2026 | validate và vòng đời dữ liệu; sinh viên cần tự đọc diff và giải thích |
 | Booking core | Chưa bắt đầu | test race/conflict | transaction, lock, idempotency |
 | Attendance/Review | Chưa bắt đầu | test eligibility | dữ liệu nguồn và dữ liệu dẫn xuất |
-| Frontend React | Chưa bắt đầu | UI gọi API | component, state, route, API client |
-| Hoàn thiện/demo | Chưa bắt đầu | test report + demo | hệ thống hoạt động end-to-end ra sao |
+| Frontend React | Đã triển khai demo Identity; test/build và dev server PASS | `client/` có login, profile, quản lý tài khoản Admin; Vitest, Vite build và HTTP 200 ở cổng 5173 | component, state, route, API client |
+| Hoàn thiện/demo | Backend end-to-end PASS; giao diện chưa kiểm tra thủ công trong browser | 5 role login, non-Admin 403, tạo user, lock/unlock token và logout token đều đúng; `go test`, `go vet`, frontend test/build, docs checker PASS | hệ thống hoạt động end-to-end ra sao |
 
 ## 8. Quy tắc giữ nhật ký hữu ích
 
@@ -324,6 +324,12 @@ lệnh ở đây
 - Nếu kết quả chưa được chạy thử, ghi rõ “chưa kiểm chứng”.
 
 ## 9. Tài liệu cần đọc lại
+
+Ghi nhận Codex ngày 01/11/2026: thực hiện U2–U4 theo yêu cầu trực tiếp, tích hợp lịch chọn/kéo/chỉnh trên public/Hội viên và bản nháp qua login, kiểm tra local bằng PostgreSQL test riêng và Chrome. Bản sao DB dev được lưu trước khi dừng dự án/tắt máy theo yêu cầu. Bằng chứng và giới hạn: `docs/reports/public_booking_u2_u4_2026-11-01.md`. Đây là ghi nhận công việc của Codex, không thay lời tự đánh giá hiểu bài của sinh viên.
+
+Ghi nhận Codex ngày 31/10/2026: triển khai U1 trang chủ/khám phá/lịch công khai theo kế hoạch 35; giữ xác thực dữ liệu riêng và đặt lịch, chuyển đích phòng/ngày qua login. PostgreSQL integration chỉ chạy trên DB test riêng. Bằng chứng và giới hạn tại `docs/reports/public_discovery_u1_2026-10-31.md`; không ghi thay mức hiểu bài hoặc phê duyệt của sinh viên. U2/U3 tiếp tục theo phạm vi kế hoạch.
+
+Ghi nhận Codex ngày 11/10/2026: thực hiện kế hoạch CRUD quản trị và UI/UX theo yêu cầu người dùng. Backend giữ cấu trúc Gin tham chiếu; kiểm thử với DB test riêng, giao diện nối DB dev bằng dữ liệu demo. Bằng chứng và giới hạn tại `docs/reports/admin_crud_verification_2026-10-11.md`. Không ghi thay mức hiểu bài, phỏng vấn, buổi họp hoặc phê duyệt nghiệp vụ của sinh viên.
 
 - `docs/README.md`: bản đồ package tài liệu.
 - `docs/00_quyet_dinh_va_quy_tac_nghiep_vu.md`: phạm vi và quy tắc.

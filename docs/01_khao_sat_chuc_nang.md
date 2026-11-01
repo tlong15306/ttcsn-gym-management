@@ -35,6 +35,14 @@ Tài liệu này tập trung nghiên cứu, đối chiếu và đánh giá **03 
 
 ## 2. TỔNG QUAN 03 HỆ THỐNG THỰC TẾ ĐƯỢC KHẢO SÁT
 
+### Nguồn sản phẩm đã rà soát
+
+- GymMaster: [Gym management software](https://www.gymmaster.com/) mô tả quản lý hội viên, đặt lịch, PT và kiểm soát ra vào.
+- Mindbody: [Gym management software](https://www.mindbodyonline.com/business/fitness/gym-software) mô tả lịch, booking, nhân sự, thanh toán và báo cáo.
+- PerfectGym: [Gym management software](https://www.perfectgym.com/en) mô tả quản lý cơ sở, lịch nhân sự/lớp, báo cáo và nhiều địa điểm.
+
+Các nguồn trên chỉ dùng để so sánh tính năng sản phẩm. Chúng không thay thế phỏng vấn tại cơ sở GYM; phạm vi MVP hiện hành vẫn theo SRS v0.3.
+
 ```
 +-----------------------------------------------------------------------------------+
 |                        HỆ THỐNG QUẢN LÝ PHÒNG GYM KHẢO SÁT                        |

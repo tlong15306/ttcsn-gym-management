@@ -1,0 +1,94 @@
+{
+  "info": {
+    "name": "GYM Role Smoke - local verification",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Read-only local smoke collection. It logs in the five seeded roles, validates /me, validates Admin/Manager report access, and verifies Receptionist/Member are denied reports. It creates no data."
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8080/api/v1", "type": "string" },
+    { "key": "password", "value": "DemoPass123!", "type": "string" },
+    { "key": "access_token", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Admin login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/login",
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin.demo\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('admin login is 200', function () { pm.response.to.have.status(200); });", "pm.expect(pm.response.json().data.access_token).to.be.a('string').and.not.empty; pm.collectionVariables.set('access_token', pm.response.json().data.access_token);"] } }]
+    },
+    {
+      "name": "Admin gets own profile",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": "{{base_url}}/me" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('admin /me is ADMIN', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().data.role).to.eql('ADMIN'); });"] } }]
+    },
+    {
+      "name": "Admin reads operations report",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": "{{base_url}}/reports/operations" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('admin report is 200', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "Manager login",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{base_url}}/auth/login", "body": { "mode": "raw", "raw": "{\n  \"username\": \"manager.demo\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } } },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('manager login is 200', function () { pm.response.to.have.status(200); });", "pm.collectionVariables.set('access_token', pm.response.json().data.access_token);"] } }]
+    },
+    {
+      "name": "Manager gets own profile",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": "{{base_url}}/me" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('manager /me is MANAGER', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().data.role).to.eql('MANAGER'); });"] } }]
+    },
+    {
+      "name": "Manager reads operations report",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": "{{base_url}}/reports/operations" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('manager report is 200', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "Receptionist login",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{base_url}}/auth/login", "body": { "mode": "raw", "raw": "{\n  \"username\": \"reception.demo\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } } },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('receptionist login is 200', function () { pm.response.to.have.status(200); });", "pm.collectionVariables.set('access_token', pm.response.json().data.access_token);"] } }]
+    },
+    {
+      "name": "Receptionist gets own profile",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": "{{base_url}}/me" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('receptionist /me is RECEPTIONIST', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().data.role).to.eql('RECEPTIONIST'); });"] } }]
+    },
+    {
+      "name": "Receptionist is denied reports",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": "{{base_url}}/reports/operations" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('receptionist report is 403', function () { pm.response.to.have.status(403); });"] } }]
+    },
+    {
+      "name": "PT login",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{base_url}}/auth/login", "body": { "mode": "raw", "raw": "{\n  \"username\": \"pt.demo\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } } },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('PT login is 200', function () { pm.response.to.have.status(200); });", "pm.collectionVariables.set('access_token', pm.response.json().data.access_token);"] } }]
+    },
+    {
+      "name": "PT gets own profile",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": "{{base_url}}/me" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('PT /me is PT', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().data.role).to.eql('PT'); });"] } }]
+    },
+    {
+      "name": "Member login",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{base_url}}/auth/login", "body": { "mode": "raw", "raw": "{\n  \"username\": \"member.demo\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } } },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('member login is 200', function () { pm.response.to.have.status(200); });", "pm.collectionVariables.set('access_token', pm.response.json().data.access_token);"] } }]
+    },
+    {
+      "name": "Member gets own profile",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": "{{base_url}}/me" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('member /me is MEMBER', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().data.role).to.eql('MEMBER'); });"] } }]
+    },
+    {
+      "name": "Member is denied reports",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }], "url": "{{base_url}}/reports/operations" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('member report is 403', function () { pm.response.to.have.status(403); });"] } }]
+    },
+    {
+      "name": "Unknown user has generic login failure",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{base_url}}/auth/login", "body": { "mode": "raw", "raw": "{\n  \"username\": \"missing.smoke\",\n  \"password\": \"wrong-password\"\n}", "options": { "raw": { "language": "json" } } } },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('unknown account is 401', function () { pm.response.to.have.status(401); });"] } }]
+    }
+  ]
+}

@@ -2,45 +2,43 @@
 
 ## 1. Kiến trúc được chọn
 
-Hệ thống là một **modular monolith** gồm React SPA, một Go/Gin API và PostgreSQL 16+. Cách này giữ triển khai phù hợp nhóm 4 người, nhưng chia trách nhiệm nghiệp vụ để bảo trì và nâng cấp không phụ thuộc vào handler hoặc ORM.
+Hệ thống là một **modular monolith** gồm React SPA, một Go/Gin API và PostgreSQL 17. Cách tổ chức package theo project Gin tham chiếu: handler nhận HTTP, service xử lý nghiệp vụ, repository làm việc với PostgreSQL; `app` chỉ chịu trách nhiệm ghép các thành phần.
 
 ```mermaid
 flowchart LR
     UI[React SPA] -->|HTTPS JSON| API[Gin HTTP]
-    API --> POL[AuthN/AuthZ Policy]
-    POL --> UC[Application Use Cases]
-    UC --> ID[Identity]
-    UC --> MEM[Members]
-    UC --> FAC[Facilities/Scheduling]
-    UC --> PT[PT]
-    UC --> BOOK[Booking/Attendance]
-    UC --> REP[Reviews/Reports]
-    ID & MEM & FAC & PT & BOOK & REP --> PORT[Repository + Transaction Ports]
-    PORT --> PG[(PostgreSQL 16+)]
-    JOB[Background Jobs] --> UC
+    API --> MW[Middleware: AuthN/AuthZ]
+    MW --> H[handler/v1]
+    H --> S[service/v1]
+    S --> R[repository]
+    R --> PG[(PostgreSQL 17)]
+    APP[internal/app] --> H & S & R
     API --> FILE[Private/Public File Adapter]
 ```
 
 ## 2. Quy tắc phụ thuộc
 
-- Delivery/handler chỉ parse/validate giao vận, gọi use case và ánh xạ lỗi HTTP.
-- Use case chứa transaction orchestration, business rules và permission theo bản ghi; không phụ thuộc `gin.Context` hoặc model GORM.
-- Domain chứa entity, enum và lỗi nghiệp vụ; không gọi DB/framework.
-- Repository/transaction là interface do use case sử dụng; adapter PostgreSQL/GORM triển khai.
-- Không repository nào tự commit trong use case cần nhiều bảng. Một transaction coordinator bao trùm booking, audit và idempotency.
+- `internal/handler/v1` bind DTO, gọi service và ánh xạ lỗi HTTP; không chứa SQL hoặc business rule.
+- `internal/service/v1` chứa nghiệp vụ, phân quyền và validation; không phụ thuộc `gin.Context`.
+- `internal/repository` chứa truy vấn PostgreSQL và transaction. Các thao tác account cùng audit commit trong một transaction.
+- `internal/dto/v1` chỉ mô tả contract HTTP. `internal/domain` chứa entity, enum và lỗi nghiệp vụ.
+- `internal/middleware` xử lý request ID, recovery, log, CORS và xác thực. `internal/routes/v1` đăng ký endpoint. `internal/app` là composition root.
 
 ```text
 server/
   cmd/api/
   internal/
+    app/
+    config/
+    db/migrations/
     domain/
-    application/{identity,members,facilities,pt,booking,reports}/
-    delivery/http/{handler,middleware,router,dto}/
-    infrastructure/postgres/
-    infrastructure/files/
-    jobs/
-  migrations/
-  openapi/
+    dto/v1/
+    handler/v1/
+    middleware/
+    repository/
+    routes/v1/
+    service/v1/
+  pkg/auth/
 ```
 
 ## 3. Luồng booking an toàn
@@ -135,3 +133,9 @@ API theo `12_dac_ta_API.md`, OpenAPI 3.x là artifact máy đọc. `/api/v1` ch�
 - Load, restore drill và browser test theo `15_ke_hoach_kiem_thu.md`.
 
 Các tuyên bố throughput, RAM, “không bao giờ overbook” hoặc RTO/RPO chỉ được đưa vào báo cáo kết quả sau khi đo; kiến trúc hiện tại mô tả cơ chế và mục tiêu.
+
+## 12. Amendment lịch phòng đã triển khai — 11/10/2026
+
+Giữ `handler/v1 → service/v1 → repository`; domain/DTO lịch ở facility, job ở `internal/job`, composition root tại app. Lịch mở cửa tách khỏi độ dài ca và snapshot phiên. Preview HMAC gắn actor/phòng/mutation/revision/fingerprint, TTL 5 phút; confirm khóa phòng → advisory lock ca → phiên tương lai theo ID. Tất cả ca writer dùng cùng advisory lock. Booking tương lai phải tuân thủ thứ tự khóa trong decision log; hiện chưa có API Booking.
+
+Transaction ghi version/ngoại lệ, revision, phiên, audit và idempotency cùng nhau. Phiên có nguồn CALENDAR/MANUAL, nguồn đóng CALENDAR/MANUAL/ROOM; job chỉ tạo thiếu, không viết lại snapshot hoặc tự mở phiên đóng. Request đã commit replay từ DB sau restart; preview chưa commit phải tạo lại. Job startup và 00:05 Việt Nam có context timeout/shutdown, audit SYSTEM actor NULL và lỗi an toàn. Runbook hiện hành tại tài liệu 21; không suy ra NFR đã đạt từ các cơ chế này.

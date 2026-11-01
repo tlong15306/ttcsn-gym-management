@@ -1,0 +1,130 @@
+openapi: 3.0.3
+info:
+  title: GYM Management Identity API
+  version: 0.1.0
+  description: Endpoints implemented through week 4. All non-health responses include request_id.
+servers:
+  - url: http://127.0.0.1:8080/api/v1
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200': { description: Logged in }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /auth/logout:
+    post:
+      security: [{ bearerAuth: [] }]
+      summary: Revoke all current user's tokens
+      responses:
+        '204': { description: Logged out }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /me:
+    get:
+      security: [{ bearerAuth: [] }]
+      summary: Get current user
+      responses: { '200': { description: Current user } }
+    patch:
+      security: [{ bearerAuth: [] }]
+      summary: Update own name, email and phone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProfileInput' }
+      responses: { '200': { description: Updated user } }
+  /users:
+    get:
+      security: [{ bearerAuth: [] }]
+      summary: List users (Admin only)
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: role, in: query, schema: { $ref: '#/components/schemas/Role' } }
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/UserStatus' } }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: page_size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      responses: { '200': { description: Users }, '403': { $ref: '#/components/responses/Forbidden' } }
+    post:
+      security: [{ bearerAuth: [] }]
+      summary: Create user (Admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateUserInput' }
+      responses: { '201': { description: Created user }, '409': { description: Duplicate username or email } }
+  /users/{id}/status:
+    patch:
+      security: [{ bearerAuth: [] }]
+      summary: Lock or unlock user (Admin only)
+      parameters: [{ $ref: '#/components/parameters/UserID' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StatusChangeInput' }
+      responses: { '200': { description: Updated user }, '409': { description: Cannot lock final active admin } }
+  /users/{id}/role:
+    patch:
+      security: [{ bearerAuth: [] }]
+      summary: Change role (Admin only)
+      parameters: [{ $ref: '#/components/parameters/UserID' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoleChangeInput' }
+      responses: { '200': { description: Updated user }, '409': { description: Invalid state or missing profile } }
+  /users/{id}/reset-password:
+    post:
+      security: [{ bearerAuth: [] }]
+      summary: Reset password (Admin only)
+      parameters: [{ $ref: '#/components/parameters/UserID' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PasswordInput' }
+      responses: { '200': { description: Updated user } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    UserID: { name: id, in: path, required: true, schema: { type: integer, format: int64, minimum: 1 } }
+  responses:
+    Unauthenticated: { description: Missing, expired or revoked token }
+    Forbidden: { description: Authenticated account lacks permission }
+  schemas:
+    Role: { type: string, enum: [MEMBER, PT, RECEPTIONIST, MANAGER, ADMIN] }
+    UserStatus: { type: string, enum: [ACTIVE, LOCKED] }
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties: { username: { type: string }, password: { type: string, format: password } }
+    ProfileInput:
+      type: object
+      required: [full_name, email]
+      properties: { full_name: { type: string }, email: { type: string, format: email }, phone: { type: string } }
+    CreateUserInput:
+      allOf:
+        - $ref: '#/components/schemas/ProfileInput'
+        - type: object
+          required: [username, password, role]
+          properties: { username: { type: string, minLength: 3 }, password: { type: string, format: password, minLength: 8, maxLength: 72 }, role: { $ref: '#/components/schemas/Role' } }
+    StatusChangeInput:
+      type: object
+      required: [status, reason]
+      properties: { status: { $ref: '#/components/schemas/UserStatus' }, reason: { type: string, minLength: 1 } }
+    RoleChangeInput:
+      type: object
+      required: [role, reason]
+      properties: { role: { $ref: '#/components/schemas/Role' }, reason: { type: string, minLength: 1 } }
+    PasswordInput:
+      type: object
+      required: [password]
+      properties: { password: { type: string, format: password, minLength: 8, maxLength: 72 } }

@@ -2,6 +2,12 @@
 
 Đây là nguồn chính sách quyền duy nhất của baseline v0.3. Mặc định mọi quyền là **Deny**. Backend kiểm tra vai trò, phạm vi bản ghi, trạng thái và điều kiện môi trường trên mọi request.
 
+## Quyền khách chưa đăng nhập — bổ sung U1 ngày 31/10/2026
+
+Khách và người đã đăng nhập đều có thể dùng `GET /api/v1/public/rooms`, `/public/rooms/:id`, `/public/rooms/:id/cover-image`, `/public/rooms/:id/sessions`, `/public/trainers`. Chỉ trả projection đọc công khai: phòng AVAILABLE/MAINTENANCE, ảnh tương ứng, HLV APPROVED có tài khoản ACTIVE với role PT, lịch đã công bố/phiên legacy được phép dùng và số chỗ tổng hợp. Lịch giới hạn tối đa 7 ngày mỗi truy vấn, phân trang tối đa 100. Không có mutation trong namespace public; API quản trị, đặt lịch, profile, chứng chỉ và dữ liệu cá nhân vẫn theo ma trận xác thực bên dưới.
+
+## Vai trò đã xác thực
+
 Ký hiệu: `SELF` dữ liệu của mình; `ASSIGNED` booking được gán; `ALL` toàn cơ sở; `OPS` thao tác nghiệp vụ có điều kiện; `—` không có quyền.
 
 | Permission | Hội viên | PT | Lễ tân | Quản lý | Admin | Điều kiện bắt buộc |
@@ -9,7 +15,7 @@ Ký hiệu: `SELF` dữ liệu của mình; `ASSIGNED` booking được gán; `A
 | `profile.self.read/update` | SELF | SELF | SELF | SELF | SELF | Không sửa role/status/hạn thẻ/quyết định duyệt. |
 | `member.read` | SELF | ASSIGNED tối thiểu | ALL | ALL | ALL | PT chỉ xem dữ liệu cần cho buổi được gán. |
 | `member.create/update/deactivate` | — | — | OPS | OPS | OPS | Không hard-delete; thay đổi hạn thẻ có audit. |
-| `pt.profile.submit/update` | — | SELF | — | — | — | PT PENDING/REJECTED được nộp lại. |
+| `pt.profile.submit/update` | — | SELF | — | — | — | PT DRAFT/REJECTED được sửa và nộp; PENDING chỉ xem. |
 | `pt.approve/reject/suspend` | — | — | — | ALL | ALL | Ghi quyết định, lý do, người thực hiện. |
 | `pt.public.read` | ALL | ALL | ALL | ALL | ALL | Chỉ hồ sơ APPROVED; không lộ chứng chỉ riêng tư. |
 | `pt.availability.manage` | — | SELF | — | ALL | ALL | Không làm mất lịch đã CONFIRMED. |

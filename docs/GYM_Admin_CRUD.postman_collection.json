@@ -1,0 +1,2477 @@
+{
+  "info": {
+    "name": "GYM Admin CRUD - implemented endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Use only local demo. Select role by changing login credentials. Set IDs after creation. Mutations include reset/logout/retire; do not blindly Run All. Collection generated and route checked; not executed in Postman."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "member_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "room_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "slot_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "session_id_2",
+      "value": "2",
+      "type": "string"
+    },
+    {
+      "key": "pt_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "absence_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "calendar_revision",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "preview_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "calendar_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "effective_date",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "exception_date",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "exception_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "booking_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "booking_date",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "booking_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "from_date",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "to_date",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Public. ",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin.demo\",\n  \"password\": \"DemoPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) pm.collectionVariables.set('access_token', pm.response.json().data.access_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "me",
+      "item": [
+        {
+          "name": "GET /me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "me"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "me"
+              ]
+            },
+            "description": "All authenticated roles. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Demo Admin CRUD\",\n  \"email\": \"crud@example.local\",\n  \"phone\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "GET /users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "ADMIN. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /users",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "ADMIN. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Demo Admin CRUD\",\n  \"email\": \"crud@example.local\",\n  \"phone\": \"\",\n  \"username\": \"crud.demo\",\n  \"password\": \"DemoPass123!\",\n  \"role\": \"MEMBER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /users/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "{{user_id}}"
+              ]
+            },
+            "description": "ADMIN. "
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /users/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "{{user_id}}"
+              ]
+            },
+            "description": "ADMIN. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Demo Admin CRUD\",\n  \"email\": \"crud@example.local\",\n  \"phone\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /users/{id}/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "{{user_id}}",
+                "status"
+              ]
+            },
+            "description": "ADMIN. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"LOCKED\",\n  \"reason\": \"Local demo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /users/{id}/role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "{{user_id}}",
+                "role"
+              ]
+            },
+            "description": "ADMIN. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"RECEPTIONIST\",\n  \"reason\": \"Local demo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /users/{id}/reset-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "{{user_id}}",
+                "reset-password"
+              ]
+            },
+            "description": "ADMIN. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"FreshPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "members",
+      "item": [
+        {
+          "name": "GET /members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "members"
+              ]
+            },
+            "description": "ADMIN, MANAGER or RECEPTIONIST; MEMBER SELF; PT ASSIGNED. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /members",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/members",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "members"
+              ]
+            },
+            "description": "ADMIN, MANAGER or RECEPTIONIST. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id}},\n  \"member_code\": \"HV-CRUD-DEMO\",\n  \"join_date\": \"2026-10-11\",\n  \"membership_expiry\": \"2027-10-11\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /members/eligible-accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/eligible-accounts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "members",
+                "eligible-accounts"
+              ]
+            },
+            "description": "ADMIN, MANAGER or RECEPTIONIST. "
+          },
+          "response": []
+        },
+        {
+          "name": "GET /members/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "members",
+                "{{member_id}}"
+              ]
+            },
+            "description": "ADMIN, MANAGER or RECEPTIONIST; MEMBER SELF; PT ASSIGNED. "
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /members/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "members",
+                "{{member_id}}"
+              ]
+            },
+            "description": "ADMIN, MANAGER or RECEPTIONIST. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Demo Admin CRUD\",\n  \"email\": \"crud@example.local\",\n  \"phone\": \"\",\n  \"date_of_birth\": \"\",\n  \"gender\": \"\",\n  \"address\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /members/{id}/membership",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/membership",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "members",
+                "{{member_id}}",
+                "membership"
+              ]
+            },
+            "description": "ADMIN, MANAGER or RECEPTIONIST. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"membership_expiry\": \"2027-10-11\",\n  \"status\": \"ACTIVE\",\n  \"reason\": \"Local demo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /members/{id}/bookings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{booking_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/bookings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "members",
+                "{{member_id}}",
+                "bookings"
+              ]
+            },
+            "description": "ADMIN, RECEPTIONIST. Required Idempotency-Key 8-100 characters. Same actor/key/payload replays original creation; changed payload is 409. Pending PT holds capacity until rejection/cancellation/expiry. Response deadline min(now+30 minutes, starts_at).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_session_id\": {{session_id}},\n  \"pt_id\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /members/{id}/bookings/batch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{booking_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/bookings/batch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "members",
+                "{{member_id}}",
+                "bookings",
+                "batch"
+              ]
+            },
+            "description": "ADMIN, RECEPTIONIST. Required Idempotency-Key 8-100 characters. The server orders the selected sessions and requires one room, one date and immediately consecutive times. All selected bookings commit together or none commit. Same actor/key/payload replays the original ordered array; changed payload is 409. Invalid or non-consecutive selections return 422.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_session_ids\": [\n    {{session_id}},\n    {{session_id_2}}\n  ],\n  \"pt_id\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "rooms",
+      "item": [
+        {
+          "name": "GET /rooms",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /rooms",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms"
+              ]
+            },
+            "description": "ADMIN or MANAGER. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gym CRUD demo\",\n  \"room_type\": \"Gym\",\n  \"default_capacity\": 20,\n  \"status\": \"AVAILABLE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /rooms/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /rooms/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}"
+              ]
+            },
+            "description": "ADMIN or MANAGER. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gym CRUD demo\",\n  \"room_type\": \"Gym\",\n  \"default_capacity\": 20,\n  \"status\": \"AVAILABLE\",\n  \"reason\": \"Local demo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /rooms/{id}/impact",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/impact",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "impact"
+              ]
+            },
+            "description": "ADMIN or MANAGER. "
+          },
+          "response": []
+        },
+        {
+          "name": "GET /rooms/{id}/weekly-schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/weekly-schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "weekly-schedule"
+              ]
+            },
+            "description": "ADMIN or MANAGER. "
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) pm.collectionVariables.set('calendar_revision', pm.response.json().data.room.calendar_revision);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT /rooms/{id}/weekly-schedule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{calendar_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/weekly-schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "weekly-schedule"
+              ]
+            },
+            "description": "ADMIN or MANAGER. Requires matching preview and Idempotency-Key. Same key/payload replays; different payload conflicts. Room/slot/session locks recheck holds. Stale data, affected PENDING_PT/CONFIRMED bookings or audit failure roll back all writes. Manual closures/past/ongoing snapshots stay unchanged.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"WEEKLY\",\n  \"base_revision\": {{calendar_revision}},\n  \"effective_from\": \"{{effective_date}}\",\n  \"hours\": [\n    {\n      \"weekday\": 1,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 2,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 3,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 4,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 5,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 6,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 7,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    }\n  ],\n  \"reason\": \"Local calendar demo\",\n  \"preview_id\": \"{{preview_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /rooms/{id}/calendar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/calendar?from={{effective_date}}&to={{effective_date}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "calendar"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "{{effective_date}}"
+                },
+                {
+                  "key": "to",
+                  "value": "{{effective_date}}"
+                }
+              ]
+            },
+            "description": "All authenticated roles. Required inclusive from/to dates, maximum 56 days. No exception reasons, drafts or booking contacts."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /rooms/{id}/calendar/history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/calendar/history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "calendar",
+                "history"
+              ]
+            },
+            "description": "ADMIN or MANAGER. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /rooms/{id}/calendar/preview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/calendar/preview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "calendar",
+                "preview"
+              ]
+            },
+            "description": "ADMIN or MANAGER. Five-minute actor/payload/revision/dependency-bound preview. Affected session IDs, times and held counts are returned. Uncommitted previews become invalid after API restart. Committed requests remain replayable from database idempotency records.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"WEEKLY\",\n  \"base_revision\": {{calendar_revision}},\n  \"effective_from\": \"{{effective_date}}\",\n  \"hours\": [\n    {\n      \"weekday\": 1,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 2,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 3,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 4,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 5,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 6,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    },\n    {\n      \"weekday\": 7,\n      \"start_minute\": 420,\n      \"end_minute\": 1260\n    }\n  ],\n  \"reason\": \"Local calendar demo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) { pm.collectionVariables.set('preview_id', pm.response.json().data.preview_id); pm.collectionVariables.set('calendar_key', pm.variables.replaceIn('{{$guid}}')); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /rooms/{id}/calendar/exceptions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{calendar_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/calendar/exceptions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "calendar",
+                "exceptions"
+              ]
+            },
+            "description": "ADMIN or MANAGER. Requires matching preview and Idempotency-Key. Same key/payload replays; different payload conflicts. Room/slot/session locks recheck holds. Stale data, affected PENDING_PT/CONFIRMED bookings or audit failure roll back all writes. Manual closures/past/ongoing snapshots stay unchanged.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"EXCEPTION\",\n  \"base_revision\": {{calendar_revision}},\n  \"hours\": [],\n  \"reason\": \"Local calendar demo\",\n  \"preview_id\": \"{{preview_id}}\",\n  \"date\": \"{{exception_date}}\",\n  \"mode\": \"CLOSED\",\n  \"closure_type\": \"HOLIDAY\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /rooms/{id}/calendar/exceptions/{exceptionId}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{calendar_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/calendar/exceptions/{{exception_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "calendar",
+                "exceptions",
+                "{{exception_id}}"
+              ]
+            },
+            "description": "ADMIN or MANAGER. Requires matching preview and Idempotency-Key. Same key/payload replays; different payload conflicts. Room/slot/session locks recheck holds. Stale data, affected PENDING_PT/CONFIRMED bookings or audit failure roll back all writes. Manual closures/past/ongoing snapshots stay unchanged.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"EXCEPTION\",\n  \"base_revision\": {{calendar_revision}},\n  \"hours\": [],\n  \"reason\": \"Local calendar demo\",\n  \"preview_id\": \"{{preview_id}}\",\n  \"date\": \"{{exception_date}}\",\n  \"mode\": \"CLOSED\",\n  \"closure_type\": \"HOLIDAY\",\n  \"exception_id\": {{exception_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /rooms/{id}/calendar/exceptions/{exceptionId}/withdraw",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{calendar_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/calendar/exceptions/{{exception_id}}/withdraw",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "calendar",
+                "exceptions",
+                "{{exception_id}}",
+                "withdraw"
+              ]
+            },
+            "description": "ADMIN or MANAGER. Requires matching preview and Idempotency-Key. Same key/payload replays; different payload conflicts. Room/slot/session locks recheck holds. Stale data, affected PENDING_PT/CONFIRMED bookings or audit failure roll back all writes. Manual closures/past/ongoing snapshots stay unchanged.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"WITHDRAW\",\n  \"base_revision\": {{calendar_revision}},\n  \"hours\": [],\n  \"reason\": \"Local calendar demo\",\n  \"preview_id\": \"{{preview_id}}\",\n  \"exception_id\": {{exception_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /rooms/{id}/calendar/materialize",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{calendar_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/calendar/materialize",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "calendar",
+                "materialize"
+              ]
+            },
+            "description": "ADMIN or MANAGER. Requires matching preview and Idempotency-Key. Same key/payload replays; different payload conflicts. Room/slot/session locks recheck holds. Stale data, affected PENDING_PT/CONFIRMED bookings or audit failure roll back all writes. Manual closures/past/ongoing snapshots stay unchanged.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"EXTEND\",\n  \"base_revision\": {{calendar_revision}},\n  \"hours\": [],\n  \"reason\": \"Local calendar demo\",\n  \"preview_id\": \"{{preview_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /rooms/{id}/cover-image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/cover-image",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "cover-image"
+              ]
+            },
+            "description": "ADMIN, MANAGER. ",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "alt_text",
+                  "type": "text",
+                  "value": "Ảnh phòng tập"
+                },
+                {
+                  "key": "is_demo",
+                  "type": "text",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /rooms/{id}/cover-image",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/cover-image",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "cover-image"
+              ]
+            },
+            "description": "ADMIN, MANAGER. "
+          },
+          "response": []
+        },
+        {
+          "name": "GET /rooms/{id}/cover-image",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}/cover-image",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms",
+                "{{room_id}}",
+                "cover-image"
+              ]
+            },
+            "description": "All authenticated roles. size card (480px) or detail (1600px). JPEG with ETag and private no-cache. 304 for matching If-None-Match."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "time-slots",
+      "item": [
+        {
+          "name": "GET /time-slots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/time-slots",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "time-slots"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /time-slots",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/time-slots",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "time-slots"
+              ]
+            },
+            "description": "ADMIN or MANAGER. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Morning demo\",\n  \"start_time\": \"08:00\",\n  \"end_time\": \"09:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /time-slots/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/time-slots/{{slot_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "time-slots",
+                "{{slot_id}}"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /time-slots/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/time-slots/{{slot_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "time-slots",
+                "{{slot_id}}"
+              ]
+            },
+            "description": "ADMIN or MANAGER. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Morning demo\",\n  \"start_time\": \"08:00\",\n  \"end_time\": \"09:00\",\n  \"reason\": \"Local demo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /time-slots/{id}/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/time-slots/{{slot_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "time-slots",
+                "{{slot_id}}",
+                "status"
+              ]
+            },
+            "description": "ADMIN or MANAGER. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false,\n  \"reason\": \"Local demo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "room-sessions",
+      "item": [
+        {
+          "name": "GET /room-sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/room-sessions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "room-sessions"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /room-sessions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/room-sessions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "room-sessions"
+              ]
+            },
+            "description": "ADMIN or MANAGER. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_id\": {{room_id}},\n  \"time_slot_id\": {{slot_id}},\n  \"session_date\": \"2026-10-25\",\n  \"capacity\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /room-sessions/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/room-sessions/{{session_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "room-sessions",
+                "{{session_id}}"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /room-sessions/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/room-sessions/{{session_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "room-sessions",
+                "{{session_id}}"
+              ]
+            },
+            "description": "ADMIN or MANAGER. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"capacity\": 20,\n  \"status\": \"OPEN\",\n  \"reason\": \"Local demo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "pts",
+      "item": [
+        {
+          "name": "GET /pts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts"
+              ]
+            },
+            "description": "All authenticated roles. Operators see all; others see active approved PT and their own profile. available_at checks a single instant, not an entire booking interval. Internal decision details are withheld from other roles."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /pts/me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "me"
+              ]
+            },
+            "description": "PT SELF. "
+          },
+          "response": []
+        },
+        {
+          "name": "GET /pts/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/{{pt_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "{{pt_id}}"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /pts/me/profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pts/me/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "me",
+                "profile"
+              ]
+            },
+            "description": "PT SELF. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"specialty\": \"Gym demo\",\n  \"experience_text\": \"Synthetic local QA profile\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /pts/me/submit",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/me/submit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "me",
+                "submit"
+              ]
+            },
+            "description": "PT SELF. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /pts/me/certificates",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/me/certificates",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "me",
+                "certificates"
+              ]
+            },
+            "description": "PT SELF. ",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /pts/{id}/certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/{{pt_id}}/certificate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "{{pt_id}}",
+                "certificate"
+              ]
+            },
+            "description": "ADMIN or MANAGER or PT SELF. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /pts/{id}/decision",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pts/{{pt_id}}/decision",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "{{pt_id}}",
+                "decision"
+              ]
+            },
+            "description": "ADMIN or MANAGER. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"APPROVE\",\n  \"reason\": \"Synthetic local QA decision\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /pts/me/availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/me/availability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "me",
+                "availability"
+              ]
+            },
+            "description": "PT SELF. "
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /pts/me/availability",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pts/me/availability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "me",
+                "availability"
+              ]
+            },
+            "description": "PT SELF. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hours\": [\n    {\n      \"day_of_week\": 1,\n      \"start_time\": \"08:00\",\n      \"end_time\": \"17:00\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /pts/me/unavailability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/me/unavailability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "me",
+                "unavailability"
+              ]
+            },
+            "description": "PT SELF. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /pts/me/unavailability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pts/me/unavailability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "me",
+                "unavailability"
+              ]
+            },
+            "description": "PT SELF. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"starts_at\": \"2026-12-01T12:00:00+07:00\",\n  \"ends_at\": \"2026-12-01T13:00:00+07:00\",\n  \"reason\": \"Synthetic local QA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /pts/me/unavailability/{absenceId}",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/me/unavailability/{{absence_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "me",
+                "unavailability",
+                "{{absence_id}}"
+              ]
+            },
+            "description": "PT SELF. "
+          },
+          "response": []
+        },
+        {
+          "name": "GET /pts/{id}/availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/{{pt_id}}/availability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "{{pt_id}}",
+                "availability"
+              ]
+            },
+            "description": "ADMIN or MANAGER or PT SELF. "
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /pts/{id}/availability",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pts/{{pt_id}}/availability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "{{pt_id}}",
+                "availability"
+              ]
+            },
+            "description": "ADMIN or MANAGER or PT SELF. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hours\": [\n    {\n      \"day_of_week\": 1,\n      \"start_time\": \"08:00\",\n      \"end_time\": \"17:00\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /pts/{id}/unavailability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/{{pt_id}}/unavailability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "{{pt_id}}",
+                "unavailability"
+              ]
+            },
+            "description": "ADMIN or MANAGER or PT SELF. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /pts/{id}/unavailability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pts/{{pt_id}}/unavailability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "{{pt_id}}",
+                "unavailability"
+              ]
+            },
+            "description": "ADMIN or MANAGER or PT SELF. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"starts_at\": \"2026-12-01T12:00:00+07:00\",\n  \"ends_at\": \"2026-12-01T13:00:00+07:00\",\n  \"reason\": \"Synthetic local QA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /pts/{id}/unavailability/{absenceId}",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/{{pt_id}}/unavailability/{{absence_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "{{pt_id}}",
+                "unavailability",
+                "{{absence_id}}"
+              ]
+            },
+            "description": "ADMIN or MANAGER or PT SELF. "
+          },
+          "response": []
+        },
+        {
+          "name": "GET /pts/{id}/reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pts/{{pt_id}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pts",
+                "{{pt_id}}",
+                "reviews"
+              ]
+            },
+            "description": "MEMBER: active approved PT public reviews; PT SELF; RECEPTIONIST, MANAGER, ADMIN ALL. Returns rating, optional comment, creation date and the generic reviewer label only. Never returns member/user/booking identifiers or contact information."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "booking-options",
+      "item": [
+        {
+          "name": "GET /booking-options/sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/booking-options/sessions?room_id={{room_id}}&date={{booking_date}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "booking-options",
+                "sessions"
+              ]
+            },
+            "description": "MEMBER, ADMIN, RECEPTIONIST. "
+          },
+          "response": []
+        },
+        {
+          "name": "GET /booking-options/pts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/booking-options/pts?room_session_id={{session_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "booking-options",
+                "pts"
+              ]
+            },
+            "description": "MEMBER, ADMIN, RECEPTIONIST. "
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "bookings",
+      "item": [
+        {
+          "name": "POST /bookings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{booking_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "description": "MEMBER. Required Idempotency-Key 8-100 characters. Same actor/key/payload replays original creation; changed payload is 409. Pending PT holds capacity until rejection/cancellation/expiry. Response deadline min(now+30 minutes, starts_at).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_session_id\": {{session_id}},\n  \"pt_id\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "description": "All authenticated roles. Member sees own bookings; PT assigned bookings; operators see all. No contact details."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/batch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{booking_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/batch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings",
+                "batch"
+              ]
+            },
+            "description": "MEMBER. Required Idempotency-Key 8-100 characters. The server orders the selected sessions and requires one room, one date and immediately consecutive times. All selected bookings commit together or none commit. Same actor/key/payload replays the original ordered array; changed payload is 409. Invalid or non-consecutive selections return 422.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_session_ids\": [\n    {{session_id}},\n    {{session_id_2}}\n  ],\n  \"pt_id\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /bookings/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings",
+                "{{booking_id}}"
+              ]
+            },
+            "description": "All authenticated roles. "
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/{id}/pt-response",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{booking_id}}/pt-response",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings",
+                "{{booking_id}}",
+                "pt-response"
+              ]
+            },
+            "description": "Assigned PT. ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"ACCEPT\",\n  \"reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/{id}/cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{booking_id}}/cancel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings",
+                "{{booking_id}}",
+                "cancel"
+              ]
+            },
+            "description": "All authenticated roles. Member self cancellation allowed at least two hours before start. Operators and assigned PT require reason. Pending PT should reject instead of cancel. Terminal transitions return 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Changed schedule\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /bookings/{id}/attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{booking_id}}/attendance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings",
+                "{{booking_id}}",
+                "attendance"
+              ]
+            },
+            "description": "All authenticated roles. Member SELF, PT ASSIGNED, operators ALL. Missing attendance is null; self-training has no PT participant."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/{id}/attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{booking_id}}/attendance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings",
+                "{{booking_id}}",
+                "attendance"
+              ]
+            },
+            "description": "ADMIN, MANAGER, RECEPTIONIST. Server infers participant and recorder. CONFIRMED only, starts_at-15min <= DB time < ends_at. Early override requires reason. First record 201, replay 200 preserves original record without extra audit; invalid window/participant 422. No additions after end; no normal cancellation after attendance.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participant_type\": \"MEMBER\",\n  \"override_reason\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/{id}/review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{booking_id}}/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings",
+                "{{booking_id}}",
+                "review"
+              ]
+            },
+            "description": "MEMBER SELF. Only a member may review their own COMPLETED booking after its end, when an assigned PT and attendance records for both participants exist. One review per booking; no edit or delete operation.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Buổi tập rất tốt.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /bookings/{id}/review",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{booking_id}}/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bookings",
+                "{{booking_id}}",
+                "review"
+              ]
+            },
+            "description": "All authenticated roles. Member SELF, assigned PT, and facility roles may read. data is null when no review exists; out-of-scope bookings return 404."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "reports",
+      "item": [
+        {
+          "name": "GET /reports/operations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/operations?from={{from_date}}&to={{to_date}}&room_id={{room_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "operations"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "{{from_date}}"
+                },
+                {
+                  "key": "to",
+                  "value": "{{to_date}}"
+                },
+                {
+                  "key": "room_id",
+                  "value": "{{room_id}}"
+                }
+              ]
+            },
+            "description": "ADMIN or MANAGER. Inclusive Vietnam-local session_date range, default current month through today, at most 366 dates. Booking totals are current status at as_of and may include future sessions. Attendance and no-show metrics include ended sessions only. no_show is NO_SHOW / (COMPLETED + NO_SHOW), null for zero denominator. Utilization is booked seat-minutes for CONFIRMED/COMPLETED/NO_SHOW on ended OPEN sessions divided by capacity-minutes for those sessions; one booking consumes one seat regardless of PT attendance. It is reserved time, not measured workout time. Legacy ended bookings without confirmation/cancellation evidence are surfaced as unclassified. Invalid room ID returns 404; invalid date/filter returns 422."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /reports/pts/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/pts/{{id}}?from={{from_date}}&to={{to_date}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "pts",
+                "{{id}}"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "{{from_date}}"
+                },
+                {
+                  "key": "to",
+                  "value": "{{to_date}}"
+                }
+              ]
+            },
+            "description": "PT SELF or ADMIN/MANAGER ALL. Inclusive Vietnam-local session_date range, default current month through today, at most 366 dates. Rating aggregates valid reviews on completed ended bookings in the selected range. Attendance uses ended confirmed COMPLETED/NO_SHOW bookings and confirmed MEMBER/PT cancellations per BR-22; FACILITY cancellations, REJECTED, EXPIRED and pending requests are excluded. Missing confirmation or UNKNOWN cancellation evidence is unclassified. Pending end-of-session CONFIRMED bookings are reported separately. A zero denominator or no reviews returns null rather than zero. PT can read only their own profile ID; managers/admins may read any existing PT. Other roles receive 403; out-of-scope or missing profile receives 404."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "public",
+      "item": [
+        {
+          "name": "GET /public/rooms",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/public/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "rooms"
+              ]
+            },
+            "description": "Public. AVAILABLE/MAINTENANCE only. Search at most 120 characters; explicit public projection, no management metadata.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /public/rooms/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/public/rooms/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "rooms",
+                "{{id}}"
+              ]
+            },
+            "description": "Public. ",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /public/rooms/{id}/cover-image",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/public/rooms/{{id}}/cover-image",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "rooms",
+                "{{id}}",
+                "cover-image"
+              ]
+            },
+            "description": "Public. Only visible room covers; private trainer certificates remain authenticated. ETag is revalidated, including room visibility.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /public/rooms/{id}/sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/public/rooms/{{id}}/sessions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "rooms",
+                "{{id}}",
+                "sessions"
+              ]
+            },
+            "description": "Public. Required YYYY-MM-DD range, at most seven inclusive days. Future-ending, published/legacy sessions only; aggregate remaining seats, no booking identities or personalized eligibility. No holds are made.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /public/trainers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/public/trainers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "trainers"
+              ]
+            },
+            "description": "Public. APPROVED trainers with active PT accounts only. No username, contact details, certificate, absence or decision data.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

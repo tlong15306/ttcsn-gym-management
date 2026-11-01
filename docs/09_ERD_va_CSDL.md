@@ -1,6 +1,9 @@
 # ERD và thiết kế CSDL — v3.0
 
 **Nền tảng:** PostgreSQL 16+ · **Baseline:** SRS v0.3  
+**Amendment lịch phòng 11/10/2026:** 18 bảng nghiệp vụ + lịch sử Goose; migration v3. Bốn bảng bổ sung là `room_schedule_versions`, `room_weekly_hours`, `room_calendar_exceptions`, `room_exception_hours`.
+**Amendment ảnh/Booking 12/10/2026:** migration v4 thêm `cover_image`, `cover_thumbnail` (BYTEA), `cover_alt_text`, `cover_version`, `cover_is_demo` vào rooms. Không thêm bảng nghiệp vụ; bytes và audit được cập nhật cùng transaction. Cover không được đưa vào JSON danh sách/chi tiết phòng; chỉ trả metadata. Booking dùng các bảng bookings/idempotency/audit hiện có, không reset dữ liệu dev.
+**Amendment provenance Booking 14/10/2026:** migration v5 thêm `confirmed_at`, `cancellation_source`, `cancelled_actor_role` vào `bookings`. Không thêm bảng nghiệp vụ. Bản hủy lịch sử được phân loại `UNKNOWN`; actor role để null nếu không có snapshot xác thực. Booking cũ không được gán mốc xác nhận từ timestamp khác.
 `09_schema.sql` dùng cho CSDL mới/rỗng. Nâng cấp dữ liệu cũ phải theo migration trong `16_runbook_van_hanh_nang_cap.md`.
 
 ## 1. Nguyên tắc
@@ -22,6 +25,12 @@ erDiagram
     personal_trainers ||--o{ pt_working_hours : schedules
     personal_trainers ||--o{ pt_unavailability : blocks
     rooms ||--o{ room_sessions : opens
+    rooms ||--o{ room_schedule_versions : publishes
+    room_schedule_versions ||--o{ room_weekly_hours : defines
+    rooms ||--o{ room_calendar_exceptions : overrides
+    room_calendar_exceptions ||--o{ room_exception_hours : replaces
+    room_schedule_versions ||--o{ room_sessions : generates
+    room_calendar_exceptions ||--o{ room_sessions : generates
     time_slots ||--o{ room_sessions : defines
     members ||--o{ bookings : makes
     personal_trainers o|--o{ bookings : serves
@@ -34,6 +43,8 @@ erDiagram
 
 ## 3. Từ điển dữ liệu tóm tắt
 
+`rooms.calendar_revision` chống cập nhật ghi đè; `calendar_required` chỉ FALSE cho phòng có trước migration v3 và chuyển TRUE khi công bố tuần đầu tiên. `calendar_prepared_through`/`calendar_job_error` phản ánh chuẩn bị phiên. Weekly version ACTIVE có cửa sổ `[effective_from,effective_until)` không chồng; bản tương lai thay thế giữ SUPERSEDED. Hours có bước 60 phút, `[0,1440)`, exclusion theo ngày/version. Ngoại lệ ACTIVE unique phòng/ngày; PATCH tạo bản thay thế và giữ bản cũ WITHDRAWN. Phiên có origin, FK version/exception và closure_source MANUAL/CALENDAR/ROOM; phiên tự động cho phép actor NULL nhưng bắt buộc nguồn. Exclusion `tstzrange` chống các phiên OPEN chồng nhau. Booking composite FK và IDs cũ giữ nguyên. DDL chi tiết ở `09_schema.sql`, hành vi tại `21_huong_dan_lich_phong.md`.
+
 | Bảng | Mục đích | Khóa/ràng buộc quan trọng |
 |---|---|---|
 | `roles` | 5 role cố định | `code` unique và CHECK miền. |
@@ -45,7 +56,7 @@ erDiagram
 | `rooms` | Phòng và capacity mặc định | tên unique CI; không xóa khi đã dùng. |
 | `time_slots` | Ca chung | exclusion ngăn ca active chồng; ca đã dùng chỉ inactive. |
 | `room_sessions` | Phiên phòng cụ thể | unique phòng/ngày/ca; timestamps/capacity/status được chốt. |
-| `bookings` | Một chỗ của member trong phiên | trạng thái chuẩn; creator/cancellation audit; FK composite bảo đảm snapshot ca đúng phiên. |
+| `bookings` | Một chỗ của member trong phiên | trạng thái chuẩn; mốc xác nhận; nguồn/role snapshot khi hủy; creator/cancellation audit; FK composite bảo đảm snapshot ca đúng phiên. |
 | `booking_attendance` | Có mặt từng người | unique booking + MEMBER/PT; người ghi/thời gian. |
 | `pt_reviews` | Đánh giá theo buổi | một review/booking; rating 1–5. |
 | `idempotency_keys` | Retry an toàn | unique actor/scope/key; hash payload và response sau commit. |

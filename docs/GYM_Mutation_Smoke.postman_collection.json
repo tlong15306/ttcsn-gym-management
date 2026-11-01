@@ -1,0 +1,151 @@
+{
+  "info": {
+    "name": "GYM Mutation Smoke - isolated test database",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Creates one synthetic RECEPTIONIST account, proves lock/unlock/reset revoke old tokens, verifies non-Admin is denied /users, then relies on the runner to reset ttcsn_gym_test. Do not run this collection against development."
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:18080/api/v1", "type": "string" },
+    { "key": "password", "value": "DemoPass123!", "type": "string" },
+    { "key": "new_password", "value": "FreshPass123!", "type": "string" },
+    { "key": "suffix", "value": "", "type": "string" },
+    { "key": "username", "value": "", "type": "string" },
+    { "key": "user_id", "value": "", "type": "string" },
+    { "key": "admin_token", "value": "", "type": "string" },
+    { "key": "user_token", "value": "", "type": "string" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('suffix')) { pm.collectionVariables.set('suffix', String(Date.now())); }",
+          "if (!pm.collectionVariables.get('username')) { pm.collectionVariables.set('username', 'mutation.' + pm.collectionVariables.get('suffix')); }"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Admin login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/login",
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin.demo\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('admin login is 200', function () { pm.response.to.have.status(200); });", "pm.collectionVariables.set('admin_token', pm.response.json().data.access_token);"] } }]
+    },
+    {
+      "name": "Create synthetic receptionist",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+        "url": "{{base_url}}/users",
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"email\": \"{{username}}@test.local\",\n  \"full_name\": \"Mutation Smoke User\",\n  \"phone\": \"0900000000\",\n  \"role\": \"RECEPTIONIST\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('create is 201', function () { pm.response.to.have.status(201); });", "var createdUser = pm.response.json().data; pm.expect(createdUser.status).to.eql('ACTIVE'); pm.expect(createdUser.role).to.eql('RECEPTIONIST'); pm.expect(JSON.stringify(createdUser)).not.to.include('password_hash'); pm.collectionVariables.set('user_id', String(createdUser.id));"] } }]
+    },
+    {
+      "name": "Created user logs in",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/login",
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('created user login is 200', function () { pm.response.to.have.status(200); });", "pm.collectionVariables.set('user_token', pm.response.json().data.access_token);"] } }]
+    },
+    {
+      "name": "Admin locks synthetic user",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+        "url": "{{base_url}}/users/{{user_id}}/status",
+        "body": { "mode": "raw", "raw": "{\n  \"status\": \"LOCKED\",\n  \"reason\": \"Mutation smoke lock\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('lock is 200', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().data.status).to.eql('LOCKED'); });"] } }]
+    },
+    {
+      "name": "Locked token is revoked",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }], "url": "{{base_url}}/me" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('locked token is 401', function () { pm.response.to.have.status(401); });"] } }]
+    },
+    {
+      "name": "Locked credentials are rejected",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/login",
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('locked credentials are 401', function () { pm.response.to.have.status(401); });"] } }]
+    },
+    {
+      "name": "Admin unlocks synthetic user",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+        "url": "{{base_url}}/users/{{user_id}}/status",
+        "body": { "mode": "raw", "raw": "{\n  \"status\": \"ACTIVE\",\n  \"reason\": \"Mutation smoke unlock\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('unlock is 200', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().data.status).to.eql('ACTIVE'); });"] } }]
+    },
+    {
+      "name": "Old token remains revoked after unlock",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }], "url": "{{base_url}}/me" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('old token remains 401', function () { pm.response.to.have.status(401); });"] } }]
+    },
+    {
+      "name": "Unlocked user logs in again",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/login",
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('unlocked user login is 200', function () { pm.response.to.have.status(200); });", "pm.collectionVariables.set('user_token', pm.response.json().data.access_token);"] } }]
+    },
+    {
+      "name": "Admin resets synthetic password",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+        "url": "{{base_url}}/users/{{user_id}}/reset-password",
+        "body": { "mode": "raw", "raw": "{\n  \"password\": \"{{new_password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('reset is 200', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "Pre-reset token is revoked",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }], "url": "{{base_url}}/me" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('pre-reset token is 401', function () { pm.response.to.have.status(401); });"] } }]
+    },
+    {
+      "name": "Old password is rejected",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/login",
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('old password is 401', function () { pm.response.to.have.status(401); });"] } }]
+    },
+    {
+      "name": "New password works but receptionist is denied account management",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/auth/login",
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{new_password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('new password login is 200', function () { pm.response.to.have.status(200); });", "pm.collectionVariables.set('user_token', pm.response.json().data.access_token);"] } }]
+    },
+    {
+      "name": "Receptionist cannot list users",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{user_token}}" }], "url": "{{base_url}}/users" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('receptionist is 403', function () { pm.response.to.have.status(403); });"] } }]
+    }
+  ]
+}

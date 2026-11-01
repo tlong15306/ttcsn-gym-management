@@ -66,6 +66,8 @@ Mỗi use case áp dụng `REQ-02`, ma trận quyền và các BR được dẫn
 
 ## UC-10 — Quản lý phòng
 
+- Bổ sung lịch: tạo phòng → chỉnh bản nháp tuần trên grid hoặc form → preview giờ/phiên/booking → xác nhận với preview_id, base_revision và Idempotency-Key → commit lịch/phiên/audit cùng transaction. Ngoại lệ thay cả ngày, rút ngoại lệ khôi phục lịch tuần, giữ lịch sử. Lỗi stale/booking giữ chỗ chặn toàn bộ; bản nháp còn để sửa. Hướng dẫn tại `21_huong_dan_lich_phong.md`.
+
 - Tạo/sửa mô tả/loại/trạng thái; tên phòng duy nhất không phân biệt hoa thường.
 - Chuyển bảo trì trả danh sách phiên/booking tương lai bị ảnh hưởng để người có quyền xử lý.
 - Không xóa phòng đã được tham chiếu.
@@ -74,6 +76,7 @@ Mỗi use case áp dụng `REQ-02`, ma trận quyền và các BR được dẫn
 
 - Tạo ca chung phải thỏa BR-06; ca đã dùng chỉ được vô hiệu hóa.
 - Mở phiên theo phòng/ngày/ca, chốt timestamp và capacity.
+- Phiên mới nằm trọn vùng mở hiệu lực; phòng mới chưa công bố lịch không tạo phiên. Lịch tự tạo các ca hợp lệ trong 28 ngày, giữ nguồn CALENDAR; thao tác thủ công dùng MANUAL. Đóng thủ công không bị job mở lại. Phiên quá khứ/đang diễn ra giữ snapshot; OPEN không chồng thời gian.
 - Giảm sức chứa hoặc đóng phiên phải khóa phiên, kiểm tra booking giữ chỗ và audit.
 
 ## UC-12 — Nộp/nộp lại hồ sơ PT
@@ -118,3 +121,7 @@ stateDiagram-v2
     CONFIRMED --> COMPLETED: kết thúc, hội viên có mặt
     CONFIRMED --> NO_SHOW: kết thúc, hội viên vắng
 ```
+
+## Bổ sung U1 — Khám phá trước đăng nhập (31/10/2026)
+
+Khách mở `/`, tìm/lọc phòng hoặc xem HLV được duyệt, mở chi tiết phòng và lịch 7 ngày. Backend chỉ trả projection public theo visibility; nếu phòng bị ngừng hoạt động thì trả 404, lỗi tải có nút thử lại, chưa có lịch không được suy diễn thành lịch trống để đặt. Bấm đặt ở ngày còn ca dẫn tới login kèm đích phòng/ngày nội bộ. Hội viên đăng nhập hợp lệ quay lại phòng/ngày và hệ thống lấy lại dữ liệu/điều kiện; vai trò khác về khu vực của mình. U1 không tạo booking, không giữ chỗ và không giữ bản nháp dải giờ chưa được chọn. Xác nhận đặt theo UC-02 và API đã xác thực; kéo chỉnh mới thuộc U2/U3.
